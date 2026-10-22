@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@gradio/client": "^2.7.1"
+  },
+  "name": "prompt-lab-studio",
+  "version": "1.0.0",
+  "description": "A browser-based workspace for editing, validating, cleaning, and tagging image-generation prompts.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node --test tests/p0-03/document-validation.test.mjs tests/p0-03/prompt-validation.test.mjs tests/p0-03/source-fidelity.test.mjs",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "vite": "^8.3.5"
+  }
+}
