@@ -37,20 +37,29 @@
       <span class="status-dot"></span>
       Local workspace
     </span>
-    <button
-      class="language-placeholder secondary-button"
-      type="button"
-      aria-label="Current language: English"
-      title="Language"
-      disabled
-    >
-      <svg aria-hidden="true" viewBox="0 0 20 20">
-        <circle cx="10" cy="10" r="7.5"></circle>
-        <ellipse cx="10" cy="10" rx="3.5" ry="7.5"></ellipse>
-        <path d="M2.8 7h14.4M2.8 13h14.4"></path>
-      </svg>
-      <span>English</span>
-    </button>
+    <div class="language-picker">
+      <button
+        id="language-button"
+        class="language-toggle secondary-button"
+        type="button"
+        aria-label="Current language: English"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-controls="language-menu"
+        title="Language"
+      >
+        <svg aria-hidden="true" viewBox="0 0 20 20">
+          <circle cx="10" cy="10" r="7.5"></circle>
+          <ellipse cx="10" cy="10" rx="3.5" ry="7.5"></ellipse>
+          <path d="M2.8 7h14.4M2.8 13h14.4"></path>
+        </svg>
+        <span id="language-label">English</span>
+      </button>
+      <div id="language-menu" class="language-menu" role="menu" aria-label="Select language" hidden>
+        <button type="button" role="menuitemradio" data-language="en" aria-checked="true">English</button>
+        <button type="button" role="menuitemradio" data-language="zh-CN" aria-checked="false">简体中文</button>
+      </div>
+    </div>
   </header>
 <nav id="tool-menu" class="tool-menu" aria-label="Tools" hidden>
   <button type="button" data-tool="editor">Prompt Editor</button>

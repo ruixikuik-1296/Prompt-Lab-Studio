@@ -14,6 +14,408 @@ import {
   validateDocumentTitle,
 } from './src/core/document-validation.mjs';
 
+const LANGUAGE_STORAGE_KEY = 'prompt-lab-studio-language';
+const languageButton = document.querySelector('#language-button');
+const languageMenu = document.querySelector('#language-menu');
+const languageLabel = document.querySelector('#language-label');
+const textTranslations = {
+  '☰ Menu': '☰ 菜单',
+  'Prompt workspace': 'Prompt 工作区',
+  'Untitled prompt': '未命名 Prompt',
+  'Prompt Editor': 'Prompt 编辑器',
+  'Local workspace': '本地工作区',
+  Language: '语言',
+  'Select language': '选择语言',
+  Tools: '工具菜单',
+  DOCUMENT: '文档',
+  'Document title': '文档标题',
+  'Enter a document title': '输入文档标题',
+  'Danbooru Tag Search': 'Danbooru 标签搜索',
+  'Search tags, e.g. blue hair...': '搜索标签，例如 blue hair...',
+  WORKSPACE: '工作区',
+  'Prompt editor': 'Prompt 编辑器',
+  'Source text': '源文本',
+  Tags: '普通标签',
+  'Weighted expressions': '权重表达式',
+  'Write your prompt here...': '在此输入 Prompt...',
+  'Your original text stays unchanged by validation.': '验证不会修改原始文本。',
+  'Validate prompt': '验证 Prompt',
+  'New Document': '新建文档',
+  'Save JSON': '保存 JSON',
+  'Export TXT': '导出 TXT',
+  'Open File': '打开文件',
+  Undo: '撤销',
+  Redo: '重做',
+  DIAGNOSTICS: '诊断',
+  'Validation results': '验证结果',
+  'Not validated yet': '尚未验证',
+  'Run validation to check for unmatched parentheses.': '运行验证以检查不匹配的括号。',
+  'Image Tagger': '图片打标',
+  'Select an image to send it to the PixAI Tagger Demo and generate tags.': '选择图片并发送到 PixAI Tagger Demo 生成标签。',
+  'Drop, select, or paste an image to preview it here': '拖入、选择或粘贴图片以在此预览',
+  'Image preview for tagging': '待打标图片预览',
+  'Remove image': '移除图片',
+  'Choose image': '选择图片',
+  'Optimize upload': '优化上传',
+  'Max dimension 1536px · WebP quality 0.92': '最长边 1536px · WebP 质量 0.92',
+  'Generate tags': '生成标签',
+  'No tags generated yet': '尚未生成标签',
+  'Select an image to get started.': '请选择一张图片。',
+  'Reset thresholds': '恢复默认阈值',
+  'Character Feature Filters': '角色特征过滤',
+  'All categories allowed': '全部放行',
+  'Turn off a filter to exclude matching tags from the preview, copied output, and Prompt Editor replacement. Tags remain visible in the list.': '关闭开关会从预览、复制和覆盖 Prompt 的结果中排除该类标签；标签列表仍会显示。',
+  'Filter eye-color and heterochromia tags': '过滤眼睛颜色和异色瞳标签',
+  'Filter hair-color, two-tone, gradient, and streaked-hair tags': '过滤头发颜色、双色、渐变与挑染标签',
+  'Filter non-color hairstyle, hair-length, and styling tags': '过滤非颜色类发型、发长和造型标签',
+  'Filter dark-skin, brown-skin, and tan tags': '过滤深肤色、棕肤和晒黑标签',
+  'Filter animal ears, tails, and kemonomimi traits': '过滤兽耳、尾巴与兽娘特征',
+  'Filter elf and pointed-ear traits': '过滤精灵与尖耳朵特征',
+  'Filter angel, halo, and wing traits': '过滤天使、光环与羽翼特征',
+  'Filter demon, horn, bat-wing, and succubus traits': '过滤恶魔、犄角、蝙蝠翅膀与魅魔特征',
+  'Eye color': '瞳色',
+  'Hair color': '发色',
+  'Hairstyle / length': '发型·发长',
+  'Dark skin / tan': '黑皮 / 深肤',
+  'Animal traits': '兽耳 / 兽娘',
+  'Elf traits': '精灵系',
+  'Angelic traits': '天使系',
+  'Demonic traits': '恶魔系',
+  'Selected Tag Output': '选中标签输出',
+  'Selected tag output': '选中标签输出',
+  '0 selected tags available to copy': '0 个可复制标签',
+  Sort: '排序',
+  'Confidence: high to low': '置信度降序',
+  'A–Z within categories': '按类别 A-Z',
+  'A–Z overall': '全局 A-Z',
+  'Keep underscores': '保留下划线',
+  'Add artist: prefix to Style tags': 'Style 分类加 artist: 前缀',
+  'Copy all selected': '一键复制全部',
+  'Selected tags will appear here.': '选择标签后将在这里预览。',
+  'Raw Confidence Lookup': '原始置信度检索表',
+  '0 tags': '0 个标签',
+  'Search tags': '搜索标签',
+  'Enter a tag or category': '输入标签或类别',
+  Tag: '标签',
+  Category: '类别',
+  Confidence: '置信度',
+  'No matching tags.': '没有匹配的标签。',
+  'Put in Prompt Editor (overwrite)': '放入 Prompt Editor（覆盖）',
+  'Prompt Cleaner': 'Prompt 清理器',
+  'Organize prompt tags and manage terms to block.': '整理 Prompt 标签并管理屏蔽词。',
+  Prompt: 'Prompt',
+  'Analyze prompt': '分析 Prompt',
+  Output: '输出结果',
+  'Output display mode': '输出显示方式',
+  'Marked preview': '划线预览',
+  'Clean output': '干净输出',
+  'Copy cleaned result': '复制干净结果',
+  'Put in Prompt Editor': '放入 Prompt Editor',
+  Cancel: '取消',
+  'Blocked Terms': '屏蔽词管理',
+  'Add terms to block, then choose exact or fuzzy matching for each term.': '添加屏蔽词，再为每个词选择精确或模糊匹配。',
+  'Click a tag on the right to add it to the block list, then choose exact or fuzzy matching.': '点击右侧标签将其加入屏蔽列表，再选择精确或模糊匹配。',
+  'Prompt Tags': 'Prompt 标签',
+  'Click tags to mark them for blocking. Red indicates exact matches; yellow indicates fuzzy matches. Blocked tags are shown with strikethrough in the preview and removed when applied.': '点击标签可选择屏蔽。红色表示精确屏蔽，黄色表示模糊屏蔽；输出结果中会划线预览，应用后移除。',
+  'This tool is not implemented yet.': '此工具尚未实现。',
+  'Zero-dependency prototype': '零依赖原型',
+  'Prompt Tagger': 'Prompt 打标器',
+  'Tag Categorizer': '标签分类器',
+  'Prompt Diff': 'Prompt 差异对比',
+  'Weight Manager': '权重管理器',
+  'Batch Processor': '批量处理器',
+  'Create New Document?': '新建文档？',
+  'You have unsaved changes. Do you want to discard them and create a new document?': '当前有未保存的更改。确定放弃更改并新建文档吗？',
+  'Discard Changes': '放弃更改',
+  'Create New': '新建',
+  'Open Another Document?': '打开其他文档？',
+  'You have unsaved changes. Do you want to discard them and open another document?': '当前有未保存的更改。确定放弃更改并打开其他文档吗？',
+  'Overwrite the current prompt?': '覆盖当前 Prompt？',
+  'This will replace all content in the Prompt Editor with the currently selected tags. You can undo this action.': '这会用当前选中的标签替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。',
+  'Overwrite Prompt': '覆盖 Prompt',
+  'Replace the current prompt?': '替换当前 Prompt？',
+  'This will replace all content in the Prompt Editor with the cleaned result. You can undo this action.': '这会用 Cleaner 的干净结果替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。',
+  'Replace Prompt': '替换 Prompt',
+  'Title looks good.': '标题有效。',
+  'No unmatched parentheses found.': '未发现不匹配的括号。',
+  'Validation passed': '验证通过',
+  'Validation failed': '验证未通过',
+  'New document created.': '已新建文档。',
+  'Cannot save: document title is empty.': '无法保存：文档标题不能为空。',
+  'JSON document exported.': 'JSON 文档已导出。',
+  'Prompt exported as TXT.': 'Prompt 已导出为 TXT。',
+  'Enter a keyword to search tags.': '输入关键词以搜索标签。',
+  'Searching...': '正在搜索...',
+  'No matching tags found.': '没有找到匹配的标签。',
+  Other: '其他',
+  General: '一般标签',
+  Artist: '画师',
+  Copyright: '作品',
+  Character: '角色',
+  Metadata: '元数据',
+  Style: '风格',
+  Exact: '精确',
+  Fuzzy: '模糊',
+  '(empty tag)': '（空标签）',
+  'Cleaned result copied': '干净结果已复制',
+  'Default confidence thresholds restored': '已恢复默认置信度阈值',
+  'Copy failed. Check your browser clipboard permissions and try again.': '复制失败，请检查浏览器剪贴板权限后重试。',
+  'The API did not return any usable tags.': 'API 没有返回可用标签。',
+  'Unknown error': '未知错误',
+  'The API returned data in an unexpected format.': 'API 返回的数据格式不符合预期。',
+  'This browser could not create an image-processing canvas.': '浏览器无法创建图片处理画布。',
+  'This browser could not create the optimized image.': '浏览器无法生成优化后的图片。',
+  'This browser does not support WebP image optimization.': '此浏览器不支持 WebP 图片优化。',
+  'Drop an image file such as PNG, JPG, or WEBP.': '请拖入 PNG、JPG、WEBP 等图片文件。',
+  'Filters were applied but could not be saved. They may reset after you refresh.': '过滤设置已应用，但无法保存偏好；刷新后可能恢复默认状态。',
+  'Output format was updated but could not be saved. It may reset after you refresh.': '输出格式已更新，但无法保存偏好设置；刷新后可能恢复默认状态。',
+  'Upload settings were applied but could not be saved. They may reset after you refresh.': '上传设置已生效，但无法保存；刷新后可能恢复默认状态。',
+  'Thresholds were applied but could not be saved. Check browser storage permissions.': '阈值已应用，但无法保存偏好设置；请检查浏览器存储权限。',
+  'Prompt changed. Check duplicates again before applying.': 'Prompt 已更改。请重新检查重复项后再应用。',
+  'Search failed. Check your internet connection or try again later.': '搜索失败，请检查网络连接或稍后重试。',
+  'Connecting to PixAI and processing the image. Please wait...': '正在连接 PixAI 并处理图片，请稍候……',
+  'Unable to open this file.': '无法打开此文件。',
+  'Invalid Prompt Lab Studio JSON document.': 'Prompt Lab Studio JSON 文档无效。',
+  'The document title must not be empty.': '文档标题不能为空。',
+  'Unsupported file type. Choose a JSON or TXT file.': '不支持的文件类型。请选择 JSON 或 TXT 文件。',
+  'Clipboard access is unavailable in this browser context.': '当前浏览器环境无法访问剪贴板。',
+  'Invalid confidence score': '置信度数据无效',
+  'Closing parenthesis has no matching opening parenthesis.': '右括号没有对应的左括号。',
+  'Opening parenthesis has no matching closing parenthesis.': '左括号没有对应的右括号。',
+  'Document title must not be empty or whitespace-only.': '文档标题不能为空或仅包含空白字符。',
+};
+
+const categoryTranslations = {
+  General: '一般标签',
+  Character: '角色',
+  Style: '风格',
+  Copyright: '作品',
+  Metadata: '元数据',
+  Rating: '分级',
+};
+
+const untranslatedContentSelector =
+  '#prompt-highlight, #cleanup-original, #cleanup-result, #cleanup-tags, .tagger-tag-name, .tagger-score-name, .cleanup-blocked-tag';
+const originalTextNodes = new WeakMap();
+const originalAttributes = new WeakMap();
+let currentLanguage = 'en';
+
+function translateUiText(source) {
+  if (currentLanguage === 'en') return source;
+  if (textTranslations[source] !== undefined) return textTranslations[source];
+
+  let match = source.match(/^Blocking (\d+) categories$/);
+  if (match) return `已拦截 ${match[1]} 类`;
+
+  match = source.match(/^Copied all (\d+) selected tags$/);
+  if (match) return `已复制全部 ${match[1]} 个选中标签`;
+
+  match = source.match(/^Copied (\d+) (.+) tags$/);
+  if (match) return `已复制 ${match[2]} 的 ${match[1]} 个标签`;
+
+  match = source.match(/^Copy group \((\d+)\)$/);
+  if (match) return `复制分组 (${match[1]})`;
+
+  match = source.match(/^(\d+) tags · sorted by confidence$/);
+  if (match) return `${match[1]} 个标签 · 按置信度降序`;
+
+  match = source.match(/^(\d+) selected tags available to copy$/);
+  if (match) return `${match[1]} 个可复制标签`;
+
+  match = source.match(/^(\d+) \/ (\d+) above threshold$/);
+  if (match) return `达标 ${match[1]} / ${match[2]}`;
+
+  match = source.match(/^Tagging failed: (.*)$/);
+  if (match) return `打标失败：${translateUiText(match[1])}`;
+
+  match = source.match(/^Tagging complete\. (.*)$/);
+  if (match) return `打标完成。${translateOptimization(match[1])}`;
+
+  match = source.match(/^(.+); connecting to PixAI and processing the image\. Please wait\.\.\.$/);
+  if (match) return `${translateOptimization(match[1])}；正在连接 PixAI 并处理图片，请稍候……`;
+
+  match = source.match(/^(\d+) tags(?: · (.*))?$/);
+  if (match) return `${match[1]} 个标签${match[2] ? ` · ${match[2]}` : ''}`;
+
+  match = source.match(/^(.+) confidence threshold$/);
+  if (match) return `${categoryTranslations[match[1]] ?? match[1]} 置信度阈值`;
+
+  match = source.match(/^(.+) matching mode$/);
+  if (match) return `${match[1]} 匹配模式`;
+
+  match = source.match(/^Remove blocked term (.+)$/);
+  if (match) return `移除屏蔽词 ${match[1]}`;
+
+  match = source.match(/^Opened (.+)\.$/);
+  if (match) return `已打开 ${match[1]}。`;
+
+  match = source.match(/^(.+) · (.+) · ([\d,]+) posts$/);
+  if (match) {
+    const category = categoryTranslations[match[2]] ?? match[2];
+    return `${match[1]} · ${category} · ${match[3]} 个作品`;
+  }
+
+  match = source.match(/^Invalid confidence score for "(.+)"\.$/);
+  if (match) return `“${match[1]}”的置信度数据无效。`;
+
+  match = source.match(/^(.+) Position: (\d+) \(line (\d+)\)\.$/);
+  if (match) {
+    const warning = textTranslations[match[1]] ?? match[1];
+    return `${warning} 位置：${match[2]}（第 ${match[3]} 行）。`;
+  }
+
+  match = source.match(/^(\d+) warning(s)? found$/);
+  if (match) return `发现 ${match[1]} 个警告`;
+
+  return source;
+}
+
+function translateOptimization(message) {
+  if (message === 'Using original image') return '使用原图';
+  const match = message.match(/^Optimized upload: (.+) MB → (.+) MB$/);
+  return match ? `优化上传：${match[1]} MB → ${match[2]} MB` : message;
+}
+
+function localizeTextNode(node) {
+  if (node.parentElement?.closest(untranslatedContentSelector)) return;
+  if (!originalTextNodes.has(node)) originalTextNodes.set(node, node.data);
+  const original = originalTextNodes.get(node);
+  const leading = original.match(/^\s*/)?.[0] ?? '';
+  const trailing = original.match(/\s*$/)?.[0] ?? '';
+  const content = original.trim();
+  const translated = translateUiText(content);
+  const value = `${leading}${translated}${trailing}`;
+  if (node.data !== value) node.data = value;
+}
+
+function localizeAttributes(element) {
+  for (const attribute of ['aria-label', 'title', 'placeholder', 'alt']) {
+    if (!element.hasAttribute(attribute)) continue;
+    let attributes = originalAttributes.get(element);
+    if (!attributes) {
+      attributes = new Map();
+      originalAttributes.set(element, attributes);
+    }
+    if (!attributes.has(attribute)) {
+      attributes.set(attribute, element.getAttribute(attribute));
+    }
+    const original = attributes.get(attribute);
+    const translated = element === languageButton && attribute === 'aria-label'
+      ? (currentLanguage === 'zh-CN' ? '当前语言：简体中文' : 'Current language: English')
+      : translateUiText(original);
+    if (element.getAttribute(attribute) !== translated) {
+      element.setAttribute(attribute, translated);
+    }
+  }
+}
+
+function localizeSubtree(root) {
+  if (root.nodeType === Node.TEXT_NODE) {
+    localizeTextNode(root);
+    return;
+  }
+  if (root.nodeType !== Node.ELEMENT_NODE && root !== document.body) return;
+
+  if (root.nodeType === Node.ELEMENT_NODE) localizeAttributes(root);
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let textNode;
+  while ((textNode = walker.nextNode())) localizeTextNode(textNode);
+  root.querySelectorAll?.('*').forEach(localizeAttributes);
+}
+
+function applyLanguage(language) {
+  currentLanguage = language;
+  document.documentElement.lang = language === 'zh-CN' ? 'zh-CN' : 'en';
+  languageLabel.textContent = language === 'zh-CN' ? '简体中文' : 'English';
+  localizeSubtree(document.body);
+  languageButton.setAttribute(
+    'aria-label',
+    language === 'zh-CN' ? '当前语言：简体中文' : 'Current language: English',
+  );
+  languageButton.setAttribute('aria-expanded', String(!languageMenu.hidden));
+  languageMenu.querySelectorAll('[data-language]').forEach((option) => {
+    option.setAttribute('aria-checked', String(option.dataset.language === language));
+  });
+}
+
+try {
+  const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  if (savedLanguage === 'zh-CN') currentLanguage = savedLanguage;
+} catch (error) {
+  console.error('Unable to load language preference:', error);
+}
+
+applyLanguage(currentLanguage);
+
+languageButton.addEventListener('click', () => {
+  languageMenu.hidden = !languageMenu.hidden;
+  languageButton.setAttribute('aria-expanded', String(!languageMenu.hidden));
+  if (!languageMenu.hidden) {
+    languageMenu.querySelector(`[data-language="${currentLanguage}"]`).focus();
+  }
+});
+
+languageMenu.addEventListener('click', (event) => {
+  const option = event.target.closest('[data-language]');
+  if (!option) return;
+
+  const nextLanguage = option.dataset.language;
+  applyLanguage(nextLanguage);
+  localizeDefaultDocumentTitle();
+  languageMenu.hidden = true;
+  languageButton.setAttribute('aria-expanded', 'false');
+  try {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+  } catch (error) {
+    console.error('Unable to save language preference:', error);
+  }
+  languageButton.focus();
+});
+
+languageMenu.addEventListener('keydown', (event) => {
+  const options = [...languageMenu.querySelectorAll('[data-language]')];
+  const currentIndex = options.indexOf(document.activeElement);
+  let nextIndex;
+
+  if (event.key === 'Escape') {
+    languageMenu.hidden = true;
+    languageButton.setAttribute('aria-expanded', 'false');
+    languageButton.focus();
+    return;
+  }
+
+  if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % options.length;
+  if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + options.length) % options.length;
+  if (event.key === 'Home') nextIndex = 0;
+  if (event.key === 'End') nextIndex = options.length - 1;
+  if (nextIndex === undefined) return;
+
+  event.preventDefault();
+  options[nextIndex].focus();
+});
+
+document.addEventListener('click', (event) => {
+  if (languageMenu.hidden || event.target.closest('.language-picker')) return;
+  languageMenu.hidden = true;
+  languageButton.setAttribute('aria-expanded', 'false');
+});
+
+const localizationObserver = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'attributes') {
+      localizeAttributes(mutation.target);
+      return;
+    }
+    mutation.addedNodes.forEach(localizeSubtree);
+  });
+});
+localizationObserver.observe(document.body, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ['aria-label', 'title', 'placeholder', 'alt'],
+});
+
 const titleInput = document.querySelector('#document-title');
 const titleMessage = document.querySelector('#title-message');
 const promptSource = document.querySelector('#prompt-source');
@@ -650,7 +1052,9 @@ runTaggerButton.addEventListener('click', async () => {
           }
 
           await navigator.clipboard.writeText(selectedTags.join(', '));
-          showCopyToast(`Copied ${selectedTags.length} ${heading.textContent} tags`);
+          showCopyToast(
+            `Copied ${selectedTags.length} ${taggerCategories[category]?.label ?? category} tags`,
+          );
         } catch (error) {
           taggerStatus.textContent = 'Copy failed. Check your browser clipboard permissions and try again.';
           console.error('Failed to copy tag category:', error);
@@ -890,7 +1294,7 @@ function updateTaggerAppendButton() {
   taggerOutputCount.textContent = `${selectedTags.length} selected tags available to copy`;
   taggerOutputPreview.textContent = hasTags
     ? selectedTags.join(', ')
-    : 'Selected tags will appear here.';
+    : translateUiText('Selected tags will appear here.');
 }
 
 function getSelectedVisibleTagCheckboxes() {
@@ -1288,6 +1692,21 @@ function markDocumentAsSaved() {
   lastExportedDocument = getDocumentData();
 }
 
+function getDefaultDocumentTitle() {
+  return currentLanguage === 'zh-CN' ? '未命名 Prompt' : 'Untitled prompt';
+}
+
+function localizeDefaultDocumentTitle() {
+  const defaultTitles = ['Untitled prompt', '未命名 Prompt'];
+  if (!defaultTitles.includes(titleInput.value)) return;
+
+  titleInput.value = getDefaultDocumentTitle();
+  if (defaultTitles.includes(lastExportedDocument.title)) {
+    lastExportedDocument = { ...lastExportedDocument, title: titleInput.value };
+  }
+  saveDraft();
+}
+
 const DRAFT_STORAGE_KEY = 'prompt-lab-studio-draft';
 
 function saveDraft() {
@@ -1528,13 +1947,14 @@ saveDraft();
 });
 
 loadDraft();
+localizeDefaultDocumentTitle();
 cleanerSource.value = promptSource.value;
 renderTitleValidation();
 updateHistoryButtons();
 
 
 function createNewDocument() {newDocumentButton
-  restoreDocument('Untitled prompt', '');
+  restoreDocument(getDefaultDocumentTitle(), '');
   markDocumentAsSaved();
   saveDraft();
   showFileMessage('New document created.');
@@ -1710,7 +2130,7 @@ openFileInput.addEventListener('change', async () => {
       source = content;
 
       if (!validateDocumentTitle(title).valid) {
-        title = 'Untitled prompt';
+        title = getDefaultDocumentTitle();
       }
     } else {
       throw new Error('Unsupported file type. Choose a JSON or TXT file.');
