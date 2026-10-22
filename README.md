@@ -34,7 +34,7 @@ The repository includes a GitHub Actions workflow that builds and deploys the si
 2. In the GitHub repository, open **Settings → Pages** and set the build source to **GitHub Actions**.
 3. Push a commit to `main`, or run the workflow manually from the **Actions** tab.
 
-The site will be published at `https://<owner>.github.io/Prompt-tools-labs/`.
+The site will be published at `https://ruixikuik-1296.github.io/Prompt-Lab-Studio/`.
 
 ## Build and tests
 
