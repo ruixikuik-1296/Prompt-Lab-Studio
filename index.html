@@ -39,6 +39,15 @@
     </span>
     <div class="language-picker">
       <button
+        id="help-button"
+        class="help-button secondary-button"
+        type="button"
+        aria-label="Open user manual"
+        aria-haspopup="dialog"
+        aria-controls="user-manual"
+        title="User manual"
+      >?</button>
+      <button
         id="language-button"
         class="language-toggle secondary-button"
         type="button"
@@ -62,6 +71,7 @@
     </div>
   </header>
 <nav id="tool-menu" class="tool-menu" aria-label="Tools" hidden>
+  <button type="button" data-tool="home">Home</button>
   <button type="button" data-tool="editor">Prompt Editor</button>
   <button type="button" data-tool="cleaner">Prompt Cleaner</button>
   <button type="button" data-tool="tagger">Prompt Tagger</button>
@@ -70,7 +80,87 @@
   <button type="button" data-tool="weights">Weight Manager</button>
   <button type="button" data-tool="batch">Batch Processor</button>
 </nav>
-  <main id  ="workspace" class="workspace">
+  <main id="home-view" class="home-view">
+    <section class="home-hero">
+      <div class="home-hero-copy">
+        <p class="eyebrow">YOUR CREATIVE WORKSPACE</p>
+        <h2>Make your next prompt better.</h2>
+        <p class="home-hero-description">
+          Write, refine, and explore image-generation prompts with a focused set of tools.
+        </p>
+        <div class="home-quick-actions">
+          <button id="home-new-prompt-button" class="home-primary-action" type="button">
+            <span aria-hidden="true">＋</span>
+            New Prompt
+          </button>
+          <button id="home-open-document-button" class="home-secondary-action" type="button">
+            Open a document
+          </button>
+        </div>
+      </div>
+      <div class="home-hero-art" aria-hidden="true">
+        <div class="hero-orbit hero-orbit-one"></div>
+        <div class="hero-orbit hero-orbit-two"></div>
+        <div class="hero-prompt-card">
+          <span class="hero-card-dot"></span>
+          <span class="hero-card-line hero-card-line-long"></span>
+          <span class="hero-card-line hero-card-line-medium"></span>
+          <span class="hero-card-tag">prompt</span>
+        </div>
+        <span class="hero-spark hero-spark-one">✦</span>
+        <span class="hero-spark hero-spark-two">✧</span>
+      </div>
+    </section>
+
+    <section class="home-tools-section" aria-labelledby="home-tools-heading">
+      <div class="home-section-heading">
+        <div>
+          <p class="eyebrow">TOOLS</p>
+          <h2 id="home-tools-heading">Choose a tool</h2>
+        </div>
+        <p>Start with your idea and move between tools whenever you need.</p>
+      </div>
+      <div class="home-tool-grid">
+        <article class="home-tool-card home-tool-editor">
+          <div class="home-tool-icon" aria-hidden="true">✎</div>
+          <p class="home-tool-kicker">WRITE</p>
+          <h3>Prompt Editor</h3>
+          <p>Write and validate prompts, search tags, and manage document files.</p>
+          <button type="button" data-tool="editor">Open Editor <span aria-hidden="true">→</span></button>
+        </article>
+        <article class="home-tool-card home-tool-cleaner">
+          <div class="home-tool-icon" aria-hidden="true">⌁</div>
+          <p class="home-tool-kicker">REFINE</p>
+          <h3>Prompt Cleaner</h3>
+          <p>Review duplicate tags and remove terms with exact or fuzzy filters.</p>
+          <button type="button" data-tool="cleaner">Open Cleaner <span aria-hidden="true">→</span></button>
+        </article>
+        <article class="home-tool-card home-tool-tagger">
+          <div class="home-tool-icon" aria-hidden="true">✧</div>
+          <p class="home-tool-kicker">DISCOVER</p>
+          <h3>Prompt Tagger</h3>
+          <p>Generate tags from an image, filter results, and copy your selection.</p>
+          <button type="button" data-tool="tagger">Open Tagger <span aria-hidden="true">→</span></button>
+        </article>
+      </div>
+    </section>
+
+    <section class="home-recent-section" aria-labelledby="home-recent-heading">
+      <div class="home-section-heading">
+        <div>
+          <p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p>
+          <h2 id="home-recent-heading">Recent Documents</h2>
+        </div>
+        <span class="home-local-note">Saved in this browser</span>
+      </div>
+      <div id="recent-documents-list" class="recent-documents-list"></div>
+      <p id="recent-documents-empty" class="recent-documents-empty">
+        No recent documents yet. Create a prompt or open a document to get started.
+      </p>
+    </section>
+  </main>
+
+  <main id="workspace" class="workspace" hidden>
     <section class="panel document-panel">
       <div class="panel-heading">
         <div>
@@ -484,6 +574,64 @@
         <button id="confirm-continue-button" type="button">
           Create New
         </button>
+      </div>
+    </section>
+  </div>
+
+  <div
+    id="user-manual"
+    class="user-manual"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="user-manual-title"
+    hidden
+  >
+    <div class="user-manual-backdrop"></div>
+    <section class="user-manual-card">
+      <header class="user-manual-header">
+        <div>
+          <p class="eyebrow">HELP</p>
+          <h2 id="user-manual-title">Prompt Lab Studio User Manual</h2>
+        </div>
+        <button id="close-user-manual" class="user-manual-close" type="button" aria-label="Close user manual" title="Close">×</button>
+      </header>
+
+      <div class="user-manual-content">
+        <section>
+          <h3>Getting Started</h3>
+          <p>Use the Menu button to switch between Prompt Editor, Prompt Cleaner, and Prompt Tagger. The other listed tools are not implemented yet.</p>
+        </section>
+        <section>
+          <h3>Prompt Editor</h3>
+          <ul>
+            <li>Enter or edit prompt text in the editor. Validation checks for unmatched parentheses and does not modify your text.</li>
+            <li>Undo and Redo move through your editing history. Starting a new document resets that document's history.</li>
+            <li>Use Danbooru Tag Search to find tags. Select a result to insert it at the current cursor position.</li>
+            <li>Save JSON to preserve the document title and prompt; Export TXT to save prompt text only; Open File accepts JSON and TXT files.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Prompt Cleaner</h3>
+          <ul>
+            <li>Analyze the prompt, then review the output. Switch between marked preview and clean output.</li>
+            <li>Click a tag to add it to Blocked Terms. Choose Exact or Fuzzy matching for each term.</li>
+            <li>Copy cleaned result copies the clean text. Put in Prompt Editor asks for confirmation before replacing the editor content.</li>
+            <li>If the editor prompt changed after analysis, analyze again before applying the result.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Prompt Tagger</h3>
+          <ul>
+            <li>Select, drop, or paste an image, then choose Generate tags. Image optimization is enabled by default and can be turned off.</li>
+            <li>The image is sent to the public PixAI Tagger Demo for processing.</li>
+            <li>Adjust category confidence thresholds, use feature filters, and select the tags you want. Filters and thresholds affect which tags are included in output.</li>
+            <li>Use the output controls to sort and format tags. Copy all selected copies the selected tags; Put in Prompt Editor (overwrite) asks before replacing the editor content.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Privacy and Storage</h3>
+          <p>Your draft and preferences are stored in this browser. Tagger images are sent to the public PixAI service, and Danbooru searches contact the Danbooru API. Avoid using private content unless you are comfortable with these services.</p>
+        </section>
       </div>
     </section>
   </div>

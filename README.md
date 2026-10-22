@@ -9,7 +9,7 @@ Prompt Lab Studio is a browser-based workspace for editing and organizing image-
 - Prompt Cleaner with duplicate removal, exact/fuzzy blocking, and preview before applying.
 - Image Tagger with file selection, drag and drop, clipboard paste, and optional browser-side image optimization.
 - Tagger categories with confidence thresholds, tag selection, feature filters, sorting, copying, and output formatting.
-- Local draft and preference persistence in browser storage.
+- Local draft, recent document snapshots (up to five), and preference persistence in browser storage.
 
 ## Requirements
 
@@ -47,7 +47,7 @@ The tests use Node's built-in test runner and do not require a test framework de
 
 ## Privacy and external services
 
-- Prompt drafts and preferences are stored in the browser's local storage.
+- Prompt drafts, up to five recent document snapshots, and preferences are stored in the browser's local storage.
 - When using the Tagger, the selected image (or its optimized copy, if enabled) is sent to the public `pixai-labs/pixai-tagger-demo` Gradio Space for processing. Its availability, behavior, and terms are controlled by that service.
 - Danbooru tag search sends search requests to the Danbooru API.
 - Image optimization, when enabled, happens locally in the browser before upload.

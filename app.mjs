@@ -18,9 +18,58 @@ const LANGUAGE_STORAGE_KEY = 'prompt-lab-studio-language';
 const languageButton = document.querySelector('#language-button');
 const languageMenu = document.querySelector('#language-menu');
 const languageLabel = document.querySelector('#language-label');
+const helpButton = document.querySelector('#help-button');
+const userManual = document.querySelector('#user-manual');
+const closeUserManualButton = document.querySelector('#close-user-manual');
+let manualReturnFocus = null;
 const textTranslations = {
+  'Open user manual': '打开使用手册',
+  'Close user manual': '关闭使用手册',
+  Close: '关闭',
+  HELP: '帮助',
+  'Prompt Lab Studio User Manual': 'Prompt Lab Studio 使用手册',
+  'Getting Started': '开始使用',
+  'Use the Menu button to switch between Prompt Editor, Prompt Cleaner, and Prompt Tagger. The other listed tools are not implemented yet.': '使用“菜单”按钮切换 Prompt 编辑器、Prompt 清理器和 Prompt 打标器。菜单中的其他工具尚未实现。',
+  'Enter or edit prompt text in the editor. Validation checks for unmatched parentheses and does not modify your text.': '在编辑器中输入或修改 Prompt。验证会检查括号是否匹配，不会修改文本。',
+  "Undo and Redo move through your editing history. Starting a new document resets that document's history.": '使用“撤销”和“重做”浏览编辑历史。新建文档会重置该文档的历史记录。',
+  'Use Danbooru Tag Search to find tags. Select a result to insert it at the current cursor position.': '使用 Danbooru 标签搜索查找标签。点击搜索结果可将标签插入当前光标位置。',
+  'Save JSON to preserve the document title and prompt; Export TXT to save prompt text only; Open File accepts JSON and TXT files.': '使用“保存 JSON”保存文档标题和 Prompt；使用“导出 TXT”仅保存 Prompt 文本；“打开文件”支持 JSON 和 TXT。',
+  'Analyze the prompt, then review the output. Switch between marked preview and clean output.': '分析 Prompt 后检查输出结果。可在划线预览和干净输出之间切换。',
+  'Click a tag to add it to Blocked Terms. Choose Exact or Fuzzy matching for each term.': '点击标签将其加入屏蔽词，并为每个词选择精确或模糊匹配。',
+  'Copy cleaned result copies the clean text. Put in Prompt Editor asks for confirmation before replacing the editor content.': '“复制干净结果”会复制清理后的文本。“放入 Prompt Editor”会先确认，再替换编辑器内容。',
+  'If the editor prompt changed after analysis, analyze again before applying the result.': '如果分析后编辑器中的 Prompt 有更改，请重新分析后再应用结果。',
+  'Select, drop, or paste an image, then choose Generate tags. Image optimization is enabled by default and can be turned off.': '选择、拖入或粘贴图片，然后点击“生成标签”。图片优化默认开启，也可以关闭。',
+  'The image is sent to the public PixAI Tagger Demo for processing.': '图片会发送到公开的 PixAI Tagger Demo 进行处理。',
+  'Adjust category confidence thresholds, use feature filters, and select the tags you want. Filters and thresholds affect which tags are included in output.': '调整类别置信度阈值，使用特征过滤器并选择所需标签。过滤器和阈值会影响输出标签。',
+  'Use the output controls to sort and format tags. Copy all selected copies the selected tags; Put in Prompt Editor (overwrite) asks before replacing the editor content.': '使用输出选项对标签排序和格式化。“一键复制全部”会复制已选标签；“放入 Prompt Editor（覆盖）”会在替换编辑器内容前请求确认。',
+  'Privacy and Storage': '隐私与存储',
+  'Your draft and preferences are stored in this browser. Tagger images are sent to the public PixAI service, and Danbooru searches contact the Danbooru API. Avoid using private content unless you are comfortable with these services.': '草稿和偏好设置保存在当前浏览器中。打标图片会发送到公开的 PixAI 服务，Danbooru 搜索会访问 Danbooru API。若不接受这些服务的数据处理方式，请勿使用私人内容。',
   '☰ Menu': '☰ 菜单',
   'Prompt workspace': 'Prompt 工作区',
+  Home: '主页',
+  'YOUR CREATIVE WORKSPACE': '你的创作工作区',
+  'Make your next prompt better.': '让下一个 Prompt 更出色。',
+  'Write, refine, and explore image-generation prompts with a focused set of tools.': '使用一组专注的工具，编写、优化和探索图像生成 Prompt。',
+  'New Prompt': '新建 Prompt',
+  'Open a document': '打开文档',
+  TOOLS: '工具',
+  'Choose a tool': '选择工具',
+  'Start with your idea and move between tools whenever you need.': '从你的想法开始，并随时在不同工具之间切换。',
+  WRITE: '编写',
+  REFINE: '优化',
+  DISCOVER: '探索',
+  'Write and validate prompts, search tags, and manage document files.': '编写和验证 Prompt、搜索标签并管理文档文件。',
+  'Review duplicate tags and remove terms with exact or fuzzy filters.': '检查重复标签，并通过精确或模糊过滤移除词条。',
+  'Generate tags from an image, filter results, and copy your selection.': '从图片生成标签、筛选结果并复制所选内容。',
+  'Open Editor': '打开编辑器',
+  'Open Cleaner': '打开清理器',
+  'Open Tagger': '打开打标器',
+  'Open Document': '打开文档',
+  'Empty prompt': '空 Prompt',
+  'PICK UP WHERE YOU LEFT OFF': '继续上次的工作',
+  'Recent Documents': '最近文档',
+  'Saved in this browser': '保存在此浏览器',
+  'No recent documents yet. Create a prompt or open a document to get started.': '暂无最近文档。新建 Prompt 或打开文档即可开始。',
   'Untitled prompt': '未命名 Prompt',
   'Prompt Editor': 'Prompt 编辑器',
   'Local workspace': '本地工作区',
@@ -195,7 +244,7 @@ const categoryTranslations = {
 };
 
 const untranslatedContentSelector =
-  '#prompt-highlight, #cleanup-original, #cleanup-result, #cleanup-tags, .tagger-tag-name, .tagger-score-name, .cleanup-blocked-tag';
+  '#prompt-highlight, #cleanup-original, #cleanup-result, #cleanup-tags, .tagger-tag-name, .tagger-score-name, .cleanup-blocked-tag, .recent-document-title, .recent-document-preview';
 const originalTextNodes = new WeakMap();
 const originalAttributes = new WeakMap();
 let currentLanguage = 'en';
@@ -362,6 +411,7 @@ languageMenu.addEventListener('click', (event) => {
   const nextLanguage = option.dataset.language;
   applyLanguage(nextLanguage);
   localizeDefaultDocumentTitle();
+  renderRecentDocuments();
   languageMenu.hidden = true;
   languageButton.setAttribute('aria-expanded', 'false');
   try {
@@ -370,6 +420,41 @@ languageMenu.addEventListener('click', (event) => {
     console.error('Unable to save language preference:', error);
   }
   languageButton.focus();
+});
+
+function closeUserManual() {
+  userManual.hidden = true;
+  manualReturnFocus?.focus();
+  manualReturnFocus = null;
+}
+
+helpButton.addEventListener('click', () => {
+  languageMenu.hidden = true;
+  languageButton.setAttribute('aria-expanded', 'false');
+  manualReturnFocus = document.activeElement;
+  userManual.hidden = false;
+  closeUserManualButton.focus();
+});
+
+closeUserManualButton.addEventListener('click', closeUserManual);
+userManual.querySelector('.user-manual-backdrop').addEventListener('click', closeUserManual);
+userManual.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeUserManual();
+    return;
+  }
+  if (event.key !== 'Tab') return;
+
+  const focusableElements = [...userManual.querySelectorAll('button:not([disabled])')];
+  const first = focusableElements[0];
+  const last = focusableElements.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 });
 
 languageMenu.addEventListener('keydown', (event) => {
@@ -431,6 +516,11 @@ const saveTxtButton = document.querySelector('#save-txt-button');
 const openDocumentButton = document.querySelector('#open-document-button');
 const openFileInput = document.querySelector('#open-file-input');
 const newDocumentButton = document.querySelector('#new-document-button');
+const homeView = document.querySelector('#home-view');
+const homeNewPromptButton = document.querySelector('#home-new-prompt-button');
+const homeOpenDocumentButton = document.querySelector('#home-open-document-button');
+const recentDocumentsList = document.querySelector('#recent-documents-list');
+const recentDocumentsEmpty = document.querySelector('#recent-documents-empty');
 const confirmModal = document.querySelector('#confirm-modal');
 const confirmModalTitle = document.querySelector('#confirm-modal-title');
 const confirmModalMessage = document.querySelector('#confirm-modal-message');
@@ -803,6 +893,7 @@ menuToggle.addEventListener('click', () => {
 });
 
 const toolNames = {
+  home: 'Home',
   editor: 'Prompt Editor',
   cleaner: 'Prompt Cleaner',
   tagger: 'Prompt Tagger',
@@ -817,26 +908,44 @@ toolMenu.addEventListener('click', (event) => {
 
   if (!button) return;
 
-  const toolName = toolNames[button.dataset.tool];
+  showTool(button.dataset.tool);
+});
+
+function showTool(tool) {
+  const toolName = toolNames[tool];
 
   if (!toolName) return;
 
-const isEditor = button.dataset.tool === 'editor';
-const isCleaner = button.dataset.tool === 'cleaner';
-const isTagger = button.dataset.tool === 'tagger';
+  const isHome = tool === 'home';
+  const isEditor = tool === 'editor';
+  const isCleaner = tool === 'cleaner';
+  const isTagger = tool === 'tagger';
 
-workspace.hidden = !isEditor;
-toolPlaceholder.hidden = isEditor;
-cleanerToolContent.hidden = !isCleaner;
-taggerToolContent.hidden = !isTagger;
-toolPlaceholderMessage.hidden = isCleaner || isTagger;
+  homeView.hidden = !isHome;
+  workspace.hidden = !isEditor;
+  toolPlaceholder.hidden = isHome || isEditor;
+  cleanerToolContent.hidden = !isCleaner;
+  taggerToolContent.hidden = !isTagger;
+  toolPlaceholderMessage.hidden = isCleaner || isTagger;
 
-if (!isEditor) {
-  toolPlaceholderTitle.textContent = toolName;
-}
+  if (isHome) {
+    clearTimeout(recentDocumentSaveTimer);
+    saveRecentDocument();
+  }
+
+  if (!isHome && !isEditor) {
+    toolPlaceholderTitle.textContent = toolName;
+  }
 
   toolMenu.hidden = true;
   menuToggle.setAttribute('aria-expanded', 'false');
+}
+
+homeView.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-tool]');
+  if (button) {
+    showTool(button.dataset.tool);
+  }
 });
 
 taggerImageInput.addEventListener('change', () => {
@@ -1583,6 +1692,7 @@ let isApplyingHistory = false;
 let pendingDocumentAction = null;
 let pendingTaggerTags = null;
 let pendingCleanupPrompt = null;
+let pendingRecentDocument = null;
 let confirmReturnFocus = null;
 let lastExportedDocument = {
   title: titleInput.value,
@@ -1708,6 +1818,120 @@ function localizeDefaultDocumentTitle() {
 }
 
 const DRAFT_STORAGE_KEY = 'prompt-lab-studio-draft';
+const RECENT_DOCUMENTS_STORAGE_KEY = 'prompt-lab-studio-recent-documents';
+let currentRecentDocumentId = createRecentDocumentId();
+let recentDocumentSaveTimer;
+
+function createRecentDocumentId() {
+  return globalThis.crypto?.randomUUID?.() ??
+    `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function readRecentDocuments() {
+  const serializedDocuments = localStorage.getItem(RECENT_DOCUMENTS_STORAGE_KEY);
+
+  if (!serializedDocuments) return [];
+
+  const documents = JSON.parse(serializedDocuments);
+
+  if (!Array.isArray(documents)) {
+    throw new Error('Recent documents storage must contain an array.');
+  }
+
+  return documents.filter((document) =>
+    document &&
+    typeof document.id === 'string' &&
+    typeof document.title === 'string' &&
+    typeof document.source === 'string' &&
+    Number.isFinite(document.updatedAt),
+  );
+}
+
+function renderRecentDocuments() {
+  let documents;
+
+  try {
+    documents = readRecentDocuments();
+  } catch (error) {
+    console.error('Unable to load recent documents:', error);
+    recentDocumentsList.replaceChildren();
+    recentDocumentsEmpty.hidden = false;
+    return;
+  }
+
+  recentDocumentsList.replaceChildren();
+  recentDocumentsEmpty.hidden = documents.length > 0;
+
+  for (const recentDocument of documents) {
+    const button = document.createElement('button');
+    const icon = document.createElement('span');
+    const details = document.createElement('span');
+    const title = document.createElement('span');
+    const meta = document.createElement('span');
+    const preview = document.createElement('span');
+    const date = new Date(recentDocument.updatedAt);
+    const locale = currentLanguage === 'zh-CN' ? 'zh-CN' : 'en-US';
+    const previewText = recentDocument.source.trim().replace(/\s+/g, ' ');
+
+    button.type = 'button';
+    button.className = 'recent-document-card';
+    button.dataset.recentId = recentDocument.id;
+    icon.className = 'recent-document-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '▤';
+    details.className = 'recent-document-details';
+    title.className = 'recent-document-title';
+    title.textContent = recentDocument.title;
+    meta.className = 'recent-document-meta';
+    meta.textContent = date.toLocaleString(locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+    preview.className = 'recent-document-preview';
+    preview.textContent = previewText || translateUiText('Empty prompt');
+    details.append(title, meta, preview);
+    button.append(icon, details);
+    recentDocumentsList.append(button);
+  }
+}
+
+function saveRecentDocument() {
+  const documentData = getDocumentData();
+  const isDefaultTitle = [
+    'Untitled prompt',
+    '未命名 Prompt',
+  ].includes(documentData.title);
+
+  if (isDefaultTitle && !documentData.source.trim()) {
+    renderRecentDocuments();
+    return;
+  }
+
+  try {
+    const updatedDocument = {
+      id: currentRecentDocumentId,
+      ...documentData,
+      updatedAt: Date.now(),
+    };
+    const documents = readRecentDocuments().filter(
+      (document) => document.id !== currentRecentDocumentId,
+    );
+
+    localStorage.setItem(
+      RECENT_DOCUMENTS_STORAGE_KEY,
+      JSON.stringify([updatedDocument, ...documents].slice(0, 5)),
+    );
+  } catch (error) {
+    console.error('Unable to save recent document:', error);
+  }
+
+  renderRecentDocuments();
+}
+
+function queueRecentDocumentSave() {
+  clearTimeout(recentDocumentSaveTimer);
+  recentDocumentSaveTimer = setTimeout(saveRecentDocument, 300);
+}
 
 function saveDraft() {
   try {
@@ -1716,11 +1940,14 @@ function saveDraft() {
       JSON.stringify({
         ...getDocumentData(),
         history,
+        recentId: currentRecentDocumentId,
       }),
     );
   } catch (error) {
     console.error('Unable to save draft:', error);
   }
+
+  queueRecentDocumentSave();
 }
 
 
@@ -1739,6 +1966,10 @@ function loadDraft() {
       typeof draft.source !== 'string'
     ) {
       return;
+    }
+
+    if (typeof draft.recentId === 'string' && draft.recentId) {
+      currentRecentDocumentId = draft.recentId;
     }
 
     restoreDocument(draft.title, draft.source);
@@ -1948,17 +2179,72 @@ saveDraft();
 
 loadDraft();
 localizeDefaultDocumentTitle();
+renderRecentDocuments();
+saveDraft();
 cleanerSource.value = promptSource.value;
 renderTitleValidation();
 updateHistoryButtons();
 
 
 function createNewDocument() {newDocumentButton
+  currentRecentDocumentId = createRecentDocumentId();
   restoreDocument(getDefaultDocumentTitle(), '');
   markDocumentAsSaved();
   saveDraft();
   showFileMessage('New document created.');
 }
+
+function openRecentDocument(recentDocument) {
+  currentRecentDocumentId = recentDocument.id;
+  restoreDocument(recentDocument.title, recentDocument.source);
+  markDocumentAsSaved();
+  saveDraft();
+  showTool('editor');
+}
+
+homeNewPromptButton.addEventListener('click', () => {
+  showTool('editor');
+  newDocumentButton.click();
+});
+
+homeOpenDocumentButton.addEventListener('click', () => {
+  showTool('editor');
+  openDocumentButton.click();
+});
+
+recentDocumentsList.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-recent-id]');
+  if (!button) return;
+
+  let recentDocument;
+  try {
+    recentDocument = readRecentDocuments().find(
+      (document) => document.id === button.dataset.recentId,
+    );
+  } catch (error) {
+    console.error('Unable to open recent document:', error);
+    return;
+  }
+
+  if (!recentDocument) {
+    renderRecentDocuments();
+    return;
+  }
+
+  if (recentDocument.id === currentRecentDocumentId) {
+    showTool('editor');
+    return;
+  }
+
+  pendingRecentDocument = recentDocument;
+  if (hasUnsavedChanges()) {
+    pendingDocumentAction = 'open-recent';
+    openConfirmModal();
+    return;
+  }
+
+  openRecentDocument(recentDocument);
+});
 
 function openConfirmModal() {
   confirmReturnFocus = document.activeElement;
@@ -1968,6 +2254,11 @@ function openConfirmModal() {
     confirmModalMessage.textContent =
       'You have unsaved changes. Do you want to discard them and open another document?';
     confirmContinueButton.textContent = 'Open File';
+  } else if (pendingDocumentAction === 'open-recent') {
+    confirmModalTitle.textContent = 'Open Another Document?';
+    confirmModalMessage.textContent =
+      'You have unsaved changes. Do you want to discard them and open another document?';
+    confirmContinueButton.textContent = 'Open Document';
   } else if (pendingDocumentAction === 'tagger-overwrite') {
     confirmModalTitle.textContent = 'Overwrite the current prompt?';
     confirmModalMessage.textContent =
@@ -2009,6 +2300,7 @@ confirmCancelButton.addEventListener('click', () => {
   pendingDocumentAction = null;
   pendingTaggerTags = null;
   pendingCleanupPrompt = null;
+  pendingRecentDocument = null;
   closeConfirmModal();
 });
 
@@ -2016,16 +2308,20 @@ confirmContinueButton.addEventListener('click', () => {
   const action = pendingDocumentAction;
   const selectedTags = pendingTaggerTags;
   const cleanedPrompt = pendingCleanupPrompt;
+  const recentDocument = pendingRecentDocument;
 
   pendingDocumentAction = null;
   pendingTaggerTags = null;
   pendingCleanupPrompt = null;
+  pendingRecentDocument = null;
   closeConfirmModal();
 
   if (action === 'new') {
     createNewDocument();
   } else if (action === 'open') {
     openFileInput.click();
+  } else if (action === 'open-recent' && recentDocument) {
+    openRecentDocument(recentDocument);
   } else if (action === 'tagger-overwrite') {
     overwritePromptWithSelectedTaggerTags(selectedTags ?? []);
   } else if (action === 'cleaner-overwrite') {
@@ -2137,6 +2433,7 @@ openFileInput.addEventListener('change', async () => {
     }
 
     restoreDocument(title, source);
+    currentRecentDocumentId = createRecentDocumentId();
     markDocumentAsSaved();
     saveDraft();
     showFileMessage(`Opened ${file.name}.`);
