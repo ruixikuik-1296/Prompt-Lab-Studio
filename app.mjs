@@ -43,7 +43,7 @@ const textTranslations = {
   'Adjust category confidence thresholds, use feature filters, and select the tags you want. Filters and thresholds affect which tags are included in output.': '调整类别置信度阈值，使用特征过滤器并选择所需标签。过滤器和阈值会影响输出标签。',
   'Use the output controls to sort and format tags. Copy all selected copies the selected tags; Put in Prompt Editor (overwrite) asks before replacing the editor content.': '使用输出选项对标签排序和格式化。“一键复制全部”会复制已选标签；“放入 Prompt Editor（覆盖）”会在替换编辑器内容前请求确认。',
   'Privacy and Storage': '隐私与存储',
-  'Your draft and preferences are stored in this browser. Tagger images are sent to the public PixAI service, and Danbooru searches contact the Danbooru API. Avoid using private content unless you are comfortable with these services.': '草稿和偏好设置保存在当前浏览器中。打标图片会发送到公开的 PixAI 服务，Danbooru 搜索会访问 Danbooru API。若不接受这些服务的数据处理方式，请勿使用私人内容。',
+  'Your draft and preferences are stored in this browser. Tagger images are sent to the public PixAI service, and Danbooru searches contact the Danbooru API. Prompt Lab Studio is an independent project and is not affiliated with or endorsed by Danbooru or PixAI. These services have their own privacy policies and terms, and their availability may change. Avoid submitting sensitive prompts or images unless you are comfortable sharing them with these services.': '草稿和偏好设置保存在当前浏览器中。打标图片会发送到公开的 PixAI 服务，Danbooru 搜索会访问 Danbooru API。Prompt Lab Studio 是独立项目，与 Danbooru 或 PixAI 无关联，也不受其认可。这些服务有各自的隐私政策和使用条款，服务可用性也可能发生变化。除非你接受将敏感 Prompt 或图片分享给这些服务，否则请勿提交。',
   '☰ Menu': '☰ 菜单',
   'Prompt workspace': 'Prompt 工作区',
   Home: '主页',
