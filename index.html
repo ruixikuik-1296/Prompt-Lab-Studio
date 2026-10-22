@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,8 +37,22 @@
       <span class="status-dot"></span>
       Local workspace
     </span>
+    <button
+      class="language-placeholder secondary-button"
+      type="button"
+      aria-label="Current language: English"
+      title="Language"
+      disabled
+    >
+      <svg aria-hidden="true" viewBox="0 0 20 20">
+        <circle cx="10" cy="10" r="7.5"></circle>
+        <ellipse cx="10" cy="10" rx="3.5" ry="7.5"></ellipse>
+        <path d="M2.8 7h14.4M2.8 13h14.4"></path>
+      </svg>
+      <span>English</span>
+    </button>
   </header>
-<nav id="tool-menu" class="tool-menu" aria-label="工具菜单" hidden>
+<nav id="tool-menu" class="tool-menu" aria-label="Tools" hidden>
   <button type="button" data-tool="editor">Prompt Editor</button>
   <button type="button" data-tool="cleaner">Prompt Cleaner</button>
   <button type="button" data-tool="tagger">Prompt Tagger</button>
@@ -74,12 +88,12 @@
       ></p>
 
       <div class="tag-search-panel">
-        <label for="tag-search-input">Danbooru 标签搜索</label>
+        <label for="tag-search-input">Danbooru Tag Search</label>
 
         <input
           id="tag-search-input"
           type="text"
-          placeholder="输入标签，例如 blue hair..."
+          placeholder="Search tags, e.g. blue hair..."
           autocomplete="off"
         >
 
@@ -88,7 +102,7 @@
           class="tag-search-results"
           aria-live="polite"
         >
-          输入关键词以搜索标签。
+          Enter a keyword to search tags.
         </div>
       </div>
     </section>
@@ -110,12 +124,12 @@
         <div class="syntax-legend">
           <span class="legend-item">
             <span class="legend-dot legend-tag"></span>
-            普通标签
+            Tags
           </span>
 
           <span class="legend-item">
             <span class="legend-dot legend-weight"></span>
-            权重表达式
+            Weighted expressions
           </span>
         </div>
       </div>
@@ -223,144 +237,144 @@
   </main>
 <section id="tool-placeholder" class="panel tool-placeholder" hidden>
 <div id="tagger-tool-content" hidden>
-  <h2>图片打标</h2>
-  <p>选择图片后，图片会发送到 PixAI Tagger Demo 生成标签。</p>
+  <h2>Image Tagger</h2>
+  <p>Select an image to send it to the PixAI Tagger Demo and generate tags.</p>
 
   <div class="tagger-layout">
     <section class="tagger-upload-panel">
       <div class="tagger-image-preview" tabindex="0">
-        <p id="tagger-image-placeholder">拖入、选择或粘贴图片后会在这里预览</p>
-        <img id="tagger-image-preview" alt="待打标图片预览" hidden>
+        <p id="tagger-image-placeholder">Drop, select, or paste an image to preview it here</p>
+        <img id="tagger-image-preview" alt="Image preview for tagging" hidden>
 <button
   id="remove-tagger-image-button"
   class="remove-tagger-image-button"
   type="button"
-  aria-label="移除图片"
-  title="移除图片"
+  aria-label="Remove image"
+  title="Remove image"
   hidden
 >
   ×
 </button>
       </div>
       
-      <label for="tagger-image">选择图片</label>
+      <label for="tagger-image">Choose image</label>
       <input id="tagger-image" type="file" accept="image/*">
       <label class="tagger-optimize-option" for="tagger-optimize-upload">
         <input id="tagger-optimize-upload" type="checkbox" checked>
         <span>
-          <strong>智能优化上传</strong>
-          <small>最长边 1536px · WebP 质量 0.92</small>
+          <strong>Optimize upload</strong>
+          <small>Max dimension 1536px · WebP quality 0.92</small>
         </span>
       </label>
 
       <button id="run-tagger-button" type="button" disabled>
-        生成标签
+        Generate tags
       </button>
     </section>
 
     <section class="tagger-results-panel">
       <div id="tagger-stats" class="tagger-stats" aria-live="polite">
-        尚未生成标签
+        No tags generated yet
       </div>
 
-      <p id="tagger-status" aria-live="polite">请选择一张图片。</p>
+      <p id="tagger-status" aria-live="polite">Select an image to get started.</p>
       <button id="reset-tagger-thresholds-button" class="secondary-button" type="button">
-        恢复默认阈值
+        Reset thresholds
       </button>
       <section class="tagger-feature-filters" aria-labelledby="tagger-feature-filters-heading">
         <div class="tagger-feature-filters-header">
-          <h3 id="tagger-feature-filters-heading">角色特征过滤</h3>
-          <span id="tagger-feature-filter-summary">全部放行</span>
+          <h3 id="tagger-feature-filters-heading">Character Feature Filters</h3>
+          <span id="tagger-feature-filter-summary">All categories allowed</span>
         </div>
-        <p>关闭开关会从预览、复制和覆盖 Prompt 的结果中排除该类标签；标签列表仍会显示。</p>
+        <p>Turn off a filter to exclude matching tags from the preview, copied output, and Prompt Editor replacement. Tags remain visible in the list.</p>
         <div class="tagger-feature-filter-list">
-          <label class="tagger-feature-filter" title="拦截眼睛颜色和异色瞳标签">
+          <label class="tagger-feature-filter" title="Filter eye-color and heterochromia tags">
             <input type="checkbox" data-tagger-feature="eye-color" checked>
-            <span><strong>瞳色</strong><small>blue_eyes · red_eyes · heterochromia</small></span>
+            <span><strong>Eye color</strong><small>blue_eyes · red_eyes · heterochromia</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截头发颜色、双色、渐变与挑染标签">
+          <label class="tagger-feature-filter" title="Filter hair-color, two-tone, gradient, and streaked-hair tags">
             <input type="checkbox" data-tagger-feature="hair-color" checked>
-            <span><strong>发色</strong><small>black_hair · blonde_hair · two-tone_hair</small></span>
+            <span><strong>Hair color</strong><small>black_hair · blonde_hair · two-tone_hair</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截非颜色类发型、发长和造型标签">
+          <label class="tagger-feature-filter" title="Filter non-color hairstyle, hair-length, and styling tags">
             <input type="checkbox" data-tagger-feature="hairstyle" checked>
-            <span><strong>发型·发长</strong><small>long_hair · twintails · ahoge</small></span>
+            <span><strong>Hairstyle / length</strong><small>long_hair · twintails · ahoge</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截深肤色、棕肤和晒黑标签">
+          <label class="tagger-feature-filter" title="Filter dark-skin, brown-skin, and tan tags">
             <input type="checkbox" data-tagger-feature="dark-skin" checked>
-            <span><strong>黑皮 / 深肤</strong><small>dark_skin · tan · dark-skinned_female</small></span>
+            <span><strong>Dark skin / tan</strong><small>dark_skin · tan · dark-skinned_female</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截兽耳、尾巴与兽娘特征">
+          <label class="tagger-feature-filter" title="Filter animal ears, tails, and kemonomimi traits">
             <input type="checkbox" data-tagger-feature="kemonomimi" checked>
-            <span><strong>兽耳 / 兽娘</strong><small>animal_ears · cat_ears · fox_tail</small></span>
+            <span><strong>Animal traits</strong><small>animal_ears · cat_ears · fox_tail</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截精灵与尖耳朵特征">
+          <label class="tagger-feature-filter" title="Filter elf and pointed-ear traits">
             <input type="checkbox" data-tagger-feature="elf" checked>
-            <span><strong>精灵系</strong><small>elf · pointy_ears · dark_elf</small></span>
+            <span><strong>Elf traits</strong><small>elf · pointy_ears · dark_elf</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截天使、光环与羽翼特征">
+          <label class="tagger-feature-filter" title="Filter angel, halo, and wing traits">
             <input type="checkbox" data-tagger-feature="angelic" checked>
-            <span><strong>天使系</strong><small>angel · halo · feathered_wings</small></span>
+            <span><strong>Angelic traits</strong><small>angel · halo · feathered_wings</small></span>
           </label>
-          <label class="tagger-feature-filter" title="拦截恶魔、犄角、蝙蝠翅膀与魅魔特征">
+          <label class="tagger-feature-filter" title="Filter demon, horn, bat-wing, and succubus traits">
             <input type="checkbox" data-tagger-feature="demonic" checked>
-            <span><strong>恶魔系</strong><small>horns · demon_tail · succubus</small></span>
+            <span><strong>Demonic traits</strong><small>horns · demon_tail · succubus</small></span>
           </label>
         </div>
       </section>
-      <section class="tagger-output-panel" aria-label="选中标签输出">
+      <section class="tagger-output-panel" aria-label="Selected tag output">
         <div class="tagger-output-header">
           <div>
-            <h3>选中标签输出</h3>
-            <p id="tagger-output-count" aria-live="polite">0 个可复制标签</p>
+            <h3>Selected Tag Output</h3>
+            <p id="tagger-output-count" aria-live="polite">0 selected tags available to copy</p>
           </div>
           <div class="tagger-output-actions">
-            <label for="tagger-sort-mode">排序</label>
+            <label for="tagger-sort-mode">Sort</label>
             <select id="tagger-sort-mode">
-              <option value="confidence">置信度降序</option>
-              <option value="alphabetical">按类别 A-Z</option>
-              <option value="global-alphabetical">全局 A-Z</option>
+              <option value="confidence">Confidence: high to low</option>
+              <option value="alphabetical">A–Z within categories</option>
+              <option value="global-alphabetical">A–Z overall</option>
             </select>
             <label class="tagger-format-option" for="tagger-keep-underscores">
               <input id="tagger-keep-underscores" type="checkbox">
-              保留下划线
+              Keep underscores
             </label>
             <label class="tagger-format-option" for="tagger-artist-prefix">
               <input id="tagger-artist-prefix" type="checkbox">
-              Style 分类加 artist: 前缀
+              Add artist: prefix to Style tags
             </label>
             <button id="copy-all-tagger-tags-button" type="button" disabled>
-              一键复制全部
+              Copy all selected
             </button>
           </div>
         </div>
-        <pre id="tagger-output-preview">选择标签后将在这里预览。</pre>
+        <pre id="tagger-output-preview">Selected tags will appear here.</pre>
       </section>
       <div id="tagger-results" aria-live="polite"></div>
       <details id="tagger-score-browser" class="tagger-score-browser" hidden>
         <summary>
-          原始置信度检索表
-          <span id="tagger-score-count">0 个标签</span>
+          Raw Confidence Lookup
+          <span id="tagger-score-count">0 tags</span>
         </summary>
-        <label for="tagger-score-search">搜索标签</label>
-        <input id="tagger-score-search" type="search" placeholder="输入标签或类别">
+        <label for="tagger-score-search">Search tags</label>
+        <input id="tagger-score-search" type="search" placeholder="Enter a tag or category">
         <div class="tagger-score-table-scroll">
           <table>
             <thead>
               <tr>
-                <th scope="col">标签</th>
-                <th scope="col">类别</th>
-                <th scope="col">置信度</th>
+                <th scope="col">Tag</th>
+                <th scope="col">Category</th>
+                <th scope="col">Confidence</th>
               </tr>
             </thead>
             <tbody id="tagger-score-rows"></tbody>
           </table>
         </div>
-        <p id="tagger-score-empty" hidden>没有匹配的标签。</p>
+        <p id="tagger-score-empty" hidden>No matching tags.</p>
       </details>
 
       <button id="append-tagger-tags-button" type="button" disabled>
-        放入 Prompt Editor（覆盖）
+        Put in Prompt Editor (overwrite)
       </button>
     </section>
   </div>
@@ -368,7 +382,7 @@
 
 <div id="cleaner-tool-content" hidden>
   <h2 id="tool-placeholder-title">Prompt Cleaner</h2>
-  <p>整理 Prompt 标签，并管理需要屏蔽的词。</p>
+  <p>Organize prompt tags and manage terms to block.</p>
 
   <div class="cleaner-layout">
     <section class="cleaner-main-panel">
@@ -378,50 +392,50 @@
           <textarea id="cleaner-source" spellcheck="false"></textarea>
 
           <button id="analyze-cleanup-button" type="button">
-            分析 Prompt
+            Analyze prompt
           </button>
 
           <div id="cleanup-preview" hidden aria-live="polite">
-            <h3>输出结果</h3>
+            <h3>Output</h3>
             <div class="cleanup-output-controls">
-              <div class="cleanup-view-toggle" role="group" aria-label="输出显示方式">
+              <div class="cleanup-view-toggle" role="group" aria-label="Output display mode">
                 <button id="cleanup-marked-preview-button" type="button" aria-pressed="true">
-                  划线预览
+                  Marked preview
                 </button>
                 <button id="cleanup-clean-output-button" type="button" aria-pressed="false">
-                  干净输出
+                  Clean output
                 </button>
               </div>
               <button id="copy-cleanup-result-button" type="button">
-                复制干净结果
+                Copy cleaned result
               </button>
             </div>
             <pre id="cleanup-result"></pre>
             <p id="cleanup-copy-status" class="field-message" aria-live="polite"></p>
-            <button id="apply-cleanup-button" type="button">放入 Prompt Editor</button>
-            <button id="cancel-cleanup-button" type="button">取消</button>
+            <button id="apply-cleanup-button" type="button">Put in Prompt Editor</button>
+            <button id="cancel-cleanup-button" type="button">Cancel</button>
             <pre id="cleanup-original" hidden></pre>
           </div>
         </section>
 
         <section class="cleaner-blocked-panel">
-          <h3>屏蔽词管理</h3>
-          <p>添加屏蔽词，再为每个词选择精确或模糊匹配。</p>
+          <h3>Blocked Terms</h3>
+          <p>Add terms to block, then choose exact or fuzzy matching for each term.</p>
 
-          <p>点击右侧标签将其加入屏蔽列表，再选择精确或模糊匹配。</p><div id="cleanup-blocked-terms"></div>
+          <p>Click a tag on the right to add it to the block list, then choose exact or fuzzy matching.</p><div id="cleanup-blocked-terms"></div>
         </section>
       </div>
     </section>
 
     <section class="cleaner-tags-panel">
-      <h3>Prompt 标签</h3>
-      <p>点击标签可选择屏蔽。红色表示精确屏蔽，黄色表示模糊屏蔽；输出结果中会划线预览，应用后移除。</p>
+      <h3>Prompt Tags</h3>
+      <p>Click tags to mark them for blocking. Red indicates exact matches; yellow indicates fuzzy matches. Blocked tags are shown with strikethrough in the preview and removed when applied.</p>
       <div id="cleanup-tags" class="cleanup-tags"></div>
     </section>
   </div>
 </div>
 
-  <p id="tool-placeholder-message" hidden>此工具尚未实现。</p>
+  <p id="tool-placeholder-message" hidden>This tool is not implemented yet.</p>
 </section>
 
   <footer class="app-footer">

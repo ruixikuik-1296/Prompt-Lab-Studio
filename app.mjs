@@ -107,12 +107,12 @@ function showCopyToast(message) {
 }
 
 const taggerCategories = {
-  general: { label: '内容 General', defaultThreshold: 0.17, threshold: 0.17 },
-  character: { label: '角色 Character', defaultThreshold: 0.27, threshold: 0.27 },
-  style: { label: '风格 Style', defaultThreshold: 0.15, threshold: 0.15 },
-  copyright: { label: '作品 Copyright', defaultThreshold: 0.24, threshold: 0.24 },
-  meta: { label: '元数据 Meta', defaultThreshold: 0.17, threshold: 0.17 },
-  rating: { label: '分级 Rating', defaultThreshold: 0.41, threshold: 0.41 },
+  general: { label: 'General', defaultThreshold: 0.17, threshold: 0.17 },
+  character: { label: 'Character', defaultThreshold: 0.27, threshold: 0.27 },
+  style: { label: 'Style', defaultThreshold: 0.15, threshold: 0.15 },
+  copyright: { label: 'Copyright', defaultThreshold: 0.24, threshold: 0.24 },
+  meta: { label: 'Metadata', defaultThreshold: 0.17, threshold: 0.17 },
+  rating: { label: 'Rating', defaultThreshold: 0.41, threshold: 0.41 },
 };
 
 const TAGGER_PREFERENCES_KEY = 'prompt-lab-studio-tagger-preferences';
@@ -181,8 +181,8 @@ function isTaggerFeatureAllowed(option) {
 function updateTaggerFeatureFilterSummary() {
   const blockedCount = taggerFeatureFilters.filter((input) => !input.checked).length;
   taggerFeatureFilterSummary.textContent = blockedCount
-    ? `已拦截 ${blockedCount} 类`
-    : '全部放行';
+    ? `Blocking ${blockedCount} categories`
+    : 'All categories allowed';
 }
 
 function saveTaggerFeatureFilters() {
@@ -193,7 +193,7 @@ function saveTaggerFeatureFilters() {
     localStorage.setItem(TAGGER_FEATURE_FILTERS_KEY, JSON.stringify(preferences));
   } catch (error) {
     console.error('Unable to save Tagger feature filters:', error);
-    taggerStatus.textContent = '过滤设置已应用，但无法保存偏好；刷新后可能恢复默认状态。';
+    taggerStatus.textContent = 'Filters were applied but could not be saved. They may reset after you refresh.';
   }
 }
 
@@ -259,7 +259,7 @@ function saveTaggerFormatPreferences() {
     }));
   } catch (error) {
     console.error('Unable to save Tagger format preferences:', error);
-    taggerStatus.textContent = '输出格式已更新，但无法保存偏好设置；刷新后可能恢复默认状态。';
+    taggerStatus.textContent = 'Output format was updated but could not be saved. It may reset after you refresh.';
   }
 }
 
@@ -308,7 +308,7 @@ taggerOptimizeUpload.addEventListener('change', () => {
     localStorage.setItem(TAGGER_OPTIMIZE_KEY, String(taggerOptimizeUpload.checked));
   } catch (error) {
     console.error('Unable to save Tagger upload preference:', error);
-    taggerStatus.textContent = '上传设置已生效，但无法保存；刷新后可能恢复默认状态。';
+    taggerStatus.textContent = 'Upload settings were applied but could not be saved. They may reset after you refresh.';
   }
 });
 
@@ -323,18 +323,18 @@ async function optimizeTaggerImage(image) {
     canvas.height = Math.max(1, Math.round(bitmap.height * scale));
 
     const context = canvas.getContext('2d');
-    if (!context) throw new Error('浏览器无法创建图片处理画布。');
+    if (!context) throw new Error('This browser could not create an image-processing canvas.');
 
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
 
     const optimizedBlob = await new Promise((resolve, reject) => {
       canvas.toBlob((blob) => {
         if (!blob) {
-          reject(new Error('浏览器无法生成优化后的图片。'));
+          reject(new Error('This browser could not create the optimized image.'));
           return;
         }
         if (blob.type !== 'image/webp') {
-          reject(new Error('此浏览器不支持 WebP 图片优化。'));
+          reject(new Error('This browser does not support WebP image optimization.'));
           return;
         }
         resolve(blob);
@@ -386,7 +386,7 @@ function saveTaggerThresholds() {
     return true;
   } catch (error) {
     console.error('Unable to save Tagger threshold preferences:', error);
-    taggerStatus.textContent = '阈值已应用，但无法保存偏好设置；请检查浏览器存储权限。';
+    taggerStatus.textContent = 'Thresholds were applied but could not be saved. Check browser storage permissions.';
     return false;
   }
 }
@@ -464,10 +464,10 @@ taggerImageInput.addEventListener('change', () => {
   }
   removeTaggerImageButton.hidden = !image;
 
-  taggerStats.textContent = '尚未生成标签';
+  taggerStats.textContent = 'No tags generated yet';
   taggerStatus.textContent = image
-    ? '图片已选择，可以开始打标。'
-    : '请选择一张图片。';
+    ? 'Image selected. Ready to generate tags.'
+    : 'Select an image to get started.';
 });
 removeTaggerImageButton.addEventListener('click', () => {
   taggerImageInput.value = '';
@@ -500,7 +500,7 @@ taggerDropZone.addEventListener('drop', (event) => {
     .find((file) => file.type.startsWith('image/'));
 
   if (!droppedFile) {
-    taggerStatus.textContent = '请拖入 PNG、JPG、WEBP 等图片文件。';
+    taggerStatus.textContent = 'Drop an image file such as PNG, JPG, or WEBP.';
     return;
   }
 
@@ -539,17 +539,17 @@ runTaggerButton.addEventListener('click', async () => {
   runTaggerButton.disabled = true;
   appendTaggerTagsButton.disabled = true;
   taggerResults.replaceChildren();
-  taggerStatus.textContent = '正在连接 PixAI 并处理图片，请稍候……';
+  taggerStatus.textContent = 'Connecting to PixAI and processing the image. Please wait...';
 
   try {
     const uploadImage = taggerOptimizeUpload.checked
       ? await optimizeTaggerImage(image)
       : image;
     const optimizationMessage = uploadImage === image
-      ? '使用原图'
-      : `优化上传：${(image.size / 1024 / 1024).toFixed(2)} MB → ${(uploadImage.size / 1024 / 1024).toFixed(2)} MB`;
+      ? 'Using original image'
+      : `Optimized upload: ${(image.size / 1024 / 1024).toFixed(2)} MB → ${(uploadImage.size / 1024 / 1024).toFixed(2)} MB`;
 
-    taggerStatus.textContent = `${optimizationMessage}；正在连接 PixAI 并处理图片，请稍候……`;
+    taggerStatus.textContent = `${optimizationMessage}; connecting to PixAI and processing the image. Please wait...`;
     const client = await Client.connect('pixai-labs/pixai-tagger-demo');
     const result = await client.predict('/tag', {
       image: await handle_file(uploadImage),
@@ -570,7 +570,7 @@ runTaggerButton.addEventListener('click', async () => {
     const categories = result.data?.[8];
 
     if (!categories || typeof categories !== 'object') {
-      throw new Error('API 返回的数据格式不符合预期。');
+      throw new Error('The API returned data in an unexpected format.');
     }
 
     let checkboxCount = 0;
@@ -583,7 +583,7 @@ runTaggerButton.addEventListener('click', async () => {
       if (entries.length === 0) continue;
       entries.forEach(([rawTag, score]) => {
         if (typeof score !== 'number' || !Number.isFinite(score)) {
-          throw new Error(`“${rawTag}”的置信度数据无效。`);
+          throw new Error(`Invalid confidence score for "${rawTag}".`);
         }
         scoredTags.push({
           rawTag,
@@ -609,7 +609,7 @@ runTaggerButton.addEventListener('click', async () => {
       const selectVisibleButton = document.createElement('button');
       selectVisibleButton.type = 'button';
       selectVisibleButton.className = 'tagger-select-visible';
-      selectVisibleButton.textContent = '全选可见';
+      selectVisibleButton.textContent = 'Select all visible';
       selectVisibleButton.addEventListener('click', () => {
         group.querySelectorAll('.tagger-tag-option:not([hidden]) input[type="checkbox"]')
           .forEach((checkbox) => {
@@ -622,7 +622,7 @@ runTaggerButton.addEventListener('click', async () => {
       const deselectVisibleButton = document.createElement('button');
       deselectVisibleButton.type = 'button';
       deselectVisibleButton.className = 'tagger-deselect-visible';
-      deselectVisibleButton.textContent = '全不选';
+      deselectVisibleButton.textContent = 'Deselect all';
       deselectVisibleButton.addEventListener('click', () => {
         group.querySelectorAll('.tagger-tag-option:not([hidden]) input[type="checkbox"]')
           .forEach((checkbox) => {
@@ -635,7 +635,7 @@ runTaggerButton.addEventListener('click', async () => {
       const copyGroupButton = document.createElement('button');
       copyGroupButton.type = 'button';
       copyGroupButton.className = 'tagger-copy-group';
-      copyGroupButton.textContent = '复制分组 (0)';
+      copyGroupButton.textContent = 'Copy group (0)';
       copyGroupButton.disabled = true;
       copyGroupButton.addEventListener('click', async () => {
         const selectedTags = [...group.querySelectorAll('.tagger-tag-option:not([hidden])')]
@@ -650,9 +650,9 @@ runTaggerButton.addEventListener('click', async () => {
           }
 
           await navigator.clipboard.writeText(selectedTags.join(', '));
-          showCopyToast(`已复制 ${heading.textContent} 的 ${selectedTags.length} 个标签`);
+          showCopyToast(`Copied ${selectedTags.length} ${heading.textContent} tags`);
         } catch (error) {
-          taggerStatus.textContent = '复制失败，请检查浏览器剪贴板权限后重试。';
+          taggerStatus.textContent = 'Copy failed. Check your browser clipboard permissions and try again.';
           console.error('Failed to copy tag category:', error);
         }
       });
@@ -668,7 +668,7 @@ runTaggerButton.addEventListener('click', async () => {
       thresholdHeader.className = 'tagger-threshold-header';
 
       const thresholdLabel = document.createElement('label');
-      thresholdLabel.textContent = '置信度阈值';
+      thresholdLabel.textContent = 'Confidence threshold';
 
       const thresholdValue = document.createElement('output');
       const initialThreshold = Number(group.dataset.threshold);
@@ -683,7 +683,7 @@ runTaggerButton.addEventListener('click', async () => {
       threshold.max = '0.99';
       threshold.step = '0.01';
       threshold.value = String(initialThreshold);
-      threshold.setAttribute('aria-label', `${heading.textContent} 置信度阈值`);
+      threshold.setAttribute('aria-label', `${heading.textContent} confidence threshold`);
       thresholdLabel.htmlFor = threshold.id;
       thresholdLabel.append(thresholdValue);
       thresholdHeader.append(thresholdLabel);
@@ -697,7 +697,7 @@ runTaggerButton.addEventListener('click', async () => {
 
       for (const [rawTag, score] of entries) {
         if (typeof score !== 'number' || !Number.isFinite(score)) {
-          throw new Error(`“${rawTag}”的置信度数据无效。`);
+          throw new Error(`Invalid confidence score for "${rawTag}".`);
         }
 
         const tag = formatTaggerTag(rawTag, category);
@@ -747,22 +747,22 @@ runTaggerButton.addEventListener('click', async () => {
     }
 
     if (checkboxCount === 0) {
-      taggerStatus.textContent = 'API 没有返回可用标签。';
+      taggerStatus.textContent = 'The API did not return any usable tags.';
       return;
     }
 
-    taggerStatus.textContent = `打标完成。${optimizationMessage}`;
+    taggerStatus.textContent = `Tagging complete. ${optimizationMessage}`;
     const apiSummary = typeof result.data[7] === 'string' ? result.data[7] : '';
 const duration = apiSummary.match(/·\s*(.+)$/)?.[1];
 
 taggerStats.textContent =
-  `${checkboxCount} 个标签${duration ? ` · ${duration}` : ''}`;
+  `${checkboxCount} tags${duration ? ` · ${duration}` : ''}`;
 renderTaggerScoreBrowser(scoredTags);
 updateTaggerAppendButton();
   } catch (error) {
     console.error('PixAI tagger failed:', error);
-    taggerStatus.textContent = `打标失败：${
-      error instanceof Error ? error.message : '未知错误'
+    taggerStatus.textContent = `Tagging failed: ${
+      error instanceof Error ? error.message : 'Unknown error'
     }`;
   } finally {
     runTaggerButton.disabled = !taggerImageInput.files?.length;
@@ -789,7 +789,7 @@ resetTaggerThresholdsButton.addEventListener('click', () => {
     updateTaggerCategory(group);
   });
   updateTaggerAppendButton();
-  if (preferencesSaved) showCopyToast('已恢复默认置信度阈值');
+  if (preferencesSaved) showCopyToast('Default confidence thresholds restored');
 });
 
 function updateTaggerCategory(group) {
@@ -804,14 +804,14 @@ function updateTaggerCategory(group) {
   });
 
   group.querySelector('.tagger-threshold-count').textContent =
-    `达标 ${visibleCount} / ${options.length}`;
+    `${visibleCount} / ${options.length} above threshold`;
 
   const selectedVisibleCount = [...options].filter((label) => {
     const checkbox = label.querySelector('input[type="checkbox"]');
     return !label.hidden && checkbox.checked && isTaggerFeatureAllowed(label);
   }).length;
   const copyButton = group.querySelector('.tagger-copy-group');
-  copyButton.textContent = `复制分组 (${selectedVisibleCount})`;
+  copyButton.textContent = `Copy group (${selectedVisibleCount})`;
   copyButton.disabled = selectedVisibleCount === 0;
 }
 
@@ -875,7 +875,7 @@ function renderTaggerScoreBrowser(scoredTags) {
     taggerScoreRows.append(row);
   });
 
-  taggerScoreCount.textContent = `${sortedTags.length} 个标签 · 按置信度降序`;
+  taggerScoreCount.textContent = `${sortedTags.length} tags · sorted by confidence`;
   taggerScoreEmpty.hidden = sortedTags.length !== 0;
   taggerScoreBrowser.hidden = false;
 }
@@ -887,10 +887,10 @@ function updateTaggerAppendButton() {
 
   appendTaggerTagsButton.disabled = !hasTags;
   copyAllTaggerTagsButton.disabled = !hasTags;
-  taggerOutputCount.textContent = `${selectedTags.length} 个可复制标签`;
+  taggerOutputCount.textContent = `${selectedTags.length} selected tags available to copy`;
   taggerOutputPreview.textContent = hasTags
     ? selectedTags.join(', ')
-    : '选择标签后将在这里预览。';
+    : 'Selected tags will appear here.';
 }
 
 function getSelectedVisibleTagCheckboxes() {
@@ -923,9 +923,9 @@ copyAllTaggerTagsButton.addEventListener('click', async () => {
     }
 
     await navigator.clipboard.writeText(selectedTags.join(', '));
-    showCopyToast(`已复制全部 ${selectedTags.length} 个选中标签`);
+    showCopyToast(`Copied all ${selectedTags.length} selected tags`);
   } catch (error) {
-    taggerStatus.textContent = '复制失败，请检查浏览器剪贴板权限后重试。';
+    taggerStatus.textContent = 'Copy failed. Check your browser clipboard permissions and try again.';
     console.error('Failed to copy all selected tagger tags:', error);
   }
 });
@@ -1007,7 +1007,7 @@ function renderCleanupTags() {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'cleanup-tag';
-    button.textContent = tag.text.trim() || '(空标签)';
+    button.textContent = tag.text.trim() || '(empty tag)';
     const blockingTerm = getBlockingTerm(tag.text);
     button.classList.toggle('is-blocked-exact', Boolean(blockingTerm && !blockingTerm.fuzzy));
     button.classList.toggle('is-blocked-fuzzy', Boolean(blockingTerm && blockingTerm.fuzzy));
@@ -1039,12 +1039,12 @@ function renderBlockedTerms() {
 
     const modes = document.createElement('div');
     modes.className = 'cleanup-match-modes';
-    modes.setAttribute('aria-label', `${term.value} 匹配模式`);
+    modes.setAttribute('aria-label', `${term.value} matching mode`);
 
     const exact = document.createElement('button');
     exact.type = 'button';
     exact.className = 'cleanup-mode-exact';
-    exact.textContent = '精确';
+    exact.textContent = 'Exact';
     exact.setAttribute('aria-pressed', String(!term.fuzzy));
     exact.classList.toggle('is-active', !term.fuzzy);
     exact.addEventListener('click', () => {
@@ -1057,7 +1057,7 @@ function renderBlockedTerms() {
     const fuzzy = document.createElement('button');
     fuzzy.type = 'button';
     fuzzy.className = 'cleanup-mode-fuzzy';
-    fuzzy.textContent = '模糊';
+    fuzzy.textContent = 'Fuzzy';
     fuzzy.setAttribute('aria-pressed', String(term.fuzzy));
     fuzzy.classList.toggle('is-active', term.fuzzy);
     fuzzy.addEventListener('click', () => {
@@ -1072,7 +1072,7 @@ function renderBlockedTerms() {
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'cleanup-block-remove';
-    remove.setAttribute('aria-label', `移除屏蔽词 ${term.value}`);
+    remove.setAttribute('aria-label', `Remove blocked term ${term.value}`);
     remove.textContent = '×';
     remove.addEventListener('click', () => {
       blockedTerms.splice(blockedTerms.indexOf(term), 1);
@@ -1146,9 +1146,9 @@ copyCleanupResultButton.addEventListener('click', async () => {
 
     await navigator.clipboard.writeText(cleanupResult);
     cleanupCopyStatus.textContent = '';
-    showCopyToast('干净结果已复制');
+    showCopyToast('Cleaned result copied');
   } catch (error) {
-    cleanupCopyStatus.textContent = '复制失败，请检查浏览器剪贴板权限后重试。';
+    cleanupCopyStatus.textContent = 'Copy failed. Check your browser clipboard permissions and try again.';
     console.error('Failed to copy the cleaned prompt:', error);
   }
 });
@@ -1549,15 +1549,15 @@ function openConfirmModal() {
       'You have unsaved changes. Do you want to discard them and open another document?';
     confirmContinueButton.textContent = 'Open File';
   } else if (pendingDocumentAction === 'tagger-overwrite') {
-    confirmModalTitle.textContent = '覆盖当前 Prompt？';
+    confirmModalTitle.textContent = 'Overwrite the current prompt?';
     confirmModalMessage.textContent =
-      '这会用当前选中的标签替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。';
-    confirmContinueButton.textContent = '覆盖 Prompt';
+      'This will replace all content in the Prompt Editor with the currently selected tags. You can undo this action.';
+    confirmContinueButton.textContent = 'Overwrite Prompt';
   } else if (pendingDocumentAction === 'cleaner-overwrite') {
-    confirmModalTitle.textContent = '替换当前 Prompt？';
+    confirmModalTitle.textContent = 'Replace the current prompt?';
     confirmModalMessage.textContent =
-      '这会用 Cleaner 的干净结果替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。';
-    confirmContinueButton.textContent = '替换 Prompt';
+      'This will replace all content in the Prompt Editor with the cleaned result. You can undo this action.';
+    confirmContinueButton.textContent = 'Replace Prompt';
   } else {
     confirmModalTitle.textContent = 'Create New Document?';
     confirmModalMessage.textContent =
@@ -1736,11 +1736,11 @@ renderPromptHighlight();
 let tagSearchTimer;
 
 const tagCategories = {
-  0: '一般标签',
-  1: '画师',
-  3: '作品',
-  4: '角色',
-  5: '元数据',
+  0: 'General',
+  1: 'Artist',
+  3: 'Copyright',
+  4: 'Character',
+  5: 'Metadata',
 };
 
 tagSearchInput.addEventListener('input', () => {
@@ -1749,11 +1749,11 @@ tagSearchInput.addEventListener('input', () => {
   const query = tagSearchInput.value.trim();
 
   if (!query) {
-    tagSearchResults.textContent = '输入关键词以搜索标签。';
+    tagSearchResults.textContent = 'Enter a keyword to search tags.';
     return;
   }
 
-  tagSearchResults.textContent = '正在搜索...';
+  tagSearchResults.textContent = 'Searching...';
 
   tagSearchTimer = setTimeout(async () => {
     try {
@@ -1778,7 +1778,7 @@ const params = new URLSearchParams({
       if (tagSearchInput.value.trim() !== query) return;
 
       if (tags.length === 0) {
-        tagSearchResults.textContent = '没有找到匹配的标签。';
+        tagSearchResults.textContent = 'No matching tags found.';
         return;
       }
 
@@ -1791,7 +1791,7 @@ tags.forEach((tag) => {
   item.type = 'button';
   item.className = 'tag-search-result';
   item.textContent =
-    `${tag.name} · ${tagCategories[tag.category] ?? '其他'} · ${tag.post_count.toLocaleString()} 个作品`;
+    `${tag.name} · ${tagCategories[tag.category] ?? 'Other'} · ${tag.post_count.toLocaleString()} posts`;
 
   item.addEventListener('click', () => {
     const start = promptSource.selectionStart;
@@ -1824,7 +1824,7 @@ tags.forEach((tag) => {
     } catch (error) {
       console.error('Danbooru tag search failed:', error);
       tagSearchResults.textContent =
-        '搜索失败，请检查网络连接或稍后重试。';
+        'Search failed. Check your internet connection or try again later.';
     }
   }, 400);
 });

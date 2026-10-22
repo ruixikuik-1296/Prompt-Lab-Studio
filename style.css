@@ -49,6 +49,33 @@ button {
   background: rgb(17 19 24 / 82%);
 }
 
+.language-placeholder {
+  min-height: 40px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: #242833;
+  color: #e7e9f0;
+  font-size: 12px;
+}
+
+.language-placeholder svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.language-placeholder:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
 .brand {
   display: flex;
   align-items: center;
