@@ -396,9 +396,56 @@ try {
 
 applyLanguage(currentLanguage);
 
+function setAnimatedMenuOpen(menu, trigger, isOpen) {
+  const isOpenOrOpening = !menu.hidden && !menu.classList.contains('menu-closing');
+  if (isOpen === isOpenOrOpening) return;
+
+  menu.classList.remove('menu-opening', 'menu-closing');
+  trigger.setAttribute('aria-expanded', String(isOpen));
+
+  if (isOpen) {
+    menu.hidden = false;
+    menu.inert = false;
+    menu.setAttribute('aria-hidden', 'false');
+    menu.classList.add('menu-opening');
+    return;
+  }
+
+  if (menu.hidden) return;
+
+  if (menu.contains(document.activeElement)) {
+    trigger.focus({ preventScroll: true });
+  }
+
+  menu.inert = true;
+  menu.setAttribute('aria-hidden', 'true');
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    menu.hidden = true;
+    return;
+  }
+
+  menu.classList.add('menu-closing');
+}
+
+function finishMenuAnimation(event) {
+  if (event.target !== event.currentTarget) return;
+
+  const menu = event.currentTarget;
+  if (menu.classList.contains('menu-closing')) {
+    menu.hidden = true;
+    menu.classList.remove('menu-closing');
+    return;
+  }
+
+  menu.classList.remove('menu-opening');
+}
+
+languageMenu.addEventListener('animationend', finishMenuAnimation);
+
 languageButton.addEventListener('click', () => {
-  languageMenu.hidden = !languageMenu.hidden;
-  languageButton.setAttribute('aria-expanded', String(!languageMenu.hidden));
+  const shouldOpen = languageMenu.hidden || languageMenu.classList.contains('menu-closing');
+  setAnimatedMenuOpen(languageMenu, languageButton, shouldOpen);
   if (!languageMenu.hidden) {
     languageMenu.querySelector(`[data-language="${currentLanguage}"]`).focus();
   }
@@ -412,8 +459,7 @@ languageMenu.addEventListener('click', (event) => {
   applyLanguage(nextLanguage);
   localizeDefaultDocumentTitle();
   renderRecentDocuments();
-  languageMenu.hidden = true;
-  languageButton.setAttribute('aria-expanded', 'false');
+  setAnimatedMenuOpen(languageMenu, languageButton, false);
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
   } catch (error) {
@@ -429,8 +475,7 @@ function closeUserManual() {
 }
 
 helpButton.addEventListener('click', () => {
-  languageMenu.hidden = true;
-  languageButton.setAttribute('aria-expanded', 'false');
+  setAnimatedMenuOpen(languageMenu, languageButton, false);
   manualReturnFocus = document.activeElement;
   userManual.hidden = false;
   closeUserManualButton.focus();
@@ -463,8 +508,7 @@ languageMenu.addEventListener('keydown', (event) => {
   let nextIndex;
 
   if (event.key === 'Escape') {
-    languageMenu.hidden = true;
-    languageButton.setAttribute('aria-expanded', 'false');
+    setAnimatedMenuOpen(languageMenu, languageButton, false);
     languageButton.focus();
     return;
   }
@@ -480,9 +524,9 @@ languageMenu.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-  if (languageMenu.hidden || event.target.closest('.language-picker')) return;
-  languageMenu.hidden = true;
-  languageButton.setAttribute('aria-expanded', 'false');
+  if (languageMenu.hidden || languageMenu.classList.contains('menu-closing') ||
+      event.target.closest('.language-picker')) return;
+  setAnimatedMenuOpen(languageMenu, languageButton, false);
 });
 
 const localizationObserver = new MutationObserver((mutations) => {
@@ -886,11 +930,11 @@ function saveTaggerThresholds() {
 loadTaggerThresholds();
 
 menuToggle.addEventListener('click', () => {
-  const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
-
-  menuToggle.setAttribute('aria-expanded', String(!isExpanded));
-  toolMenu.hidden = isExpanded;
+  const shouldOpen = toolMenu.hidden || toolMenu.classList.contains('menu-closing');
+  setAnimatedMenuOpen(toolMenu, menuToggle, shouldOpen);
 });
+
+toolMenu.addEventListener('animationend', finishMenuAnimation);
 
 const toolNames = {
   home: 'Home',
@@ -921,6 +965,10 @@ function showTool(tool) {
   const isCleaner = tool === 'cleaner';
   const isTagger = tool === 'tagger';
 
+  if (!isHome) {
+    homeView.classList.remove('home-view--entering');
+  }
+
   homeView.hidden = !isHome;
   workspace.hidden = !isEditor;
   toolPlaceholder.hidden = isHome || isEditor;
@@ -937,8 +985,20 @@ function showTool(tool) {
     toolPlaceholderTitle.textContent = toolName;
   }
 
-  toolMenu.hidden = true;
-  menuToggle.setAttribute('aria-expanded', 'false');
+  setAnimatedMenuOpen(toolMenu, menuToggle, false);
+}
+
+homeView.addEventListener('animationend', (event) => {
+  if (
+    event.target.matches('.home-recent-section') &&
+    event.animationName === 'home-view-enter'
+  ) {
+    homeView.classList.remove('home-view--entering');
+  }
+});
+
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  homeView.classList.remove('home-view--entering');
 }
 
 homeView.addEventListener('click', (event) => {
