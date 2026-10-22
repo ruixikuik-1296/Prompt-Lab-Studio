@@ -469,16 +469,45 @@ languageMenu.addEventListener('click', (event) => {
 });
 
 function closeUserManual() {
-  userManual.hidden = true;
+  if (userManual.hidden || userManual.classList.contains('is-closing')) return;
+
   manualReturnFocus?.focus();
   manualReturnFocus = null;
+  userManual.inert = true;
+  userManual.setAttribute('aria-hidden', 'true');
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    userManual.hidden = true;
+    userManual.classList.remove('is-closing');
+    return;
+  }
+
+  userManual.classList.remove('is-opening');
+  userManual.classList.add('is-closing');
 }
 
 helpButton.addEventListener('click', () => {
   setAnimatedMenuOpen(languageMenu, languageButton, false);
-  manualReturnFocus = document.activeElement;
+  userManual.classList.remove('is-closing', 'is-opening');
   userManual.hidden = false;
+  userManual.inert = false;
+  userManual.setAttribute('aria-hidden', 'false');
+  manualReturnFocus = document.activeElement;
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    userManual.classList.add('is-opening');
+  }
   closeUserManualButton.focus();
+});
+
+userManual.querySelector('.user-manual-card').addEventListener('animationend', (event) => {
+  if (event.target !== event.currentTarget) return;
+
+  if (userManual.classList.contains('is-closing')) {
+    userManual.hidden = true;
+    userManual.classList.remove('is-closing');
+  } else {
+    userManual.classList.remove('is-opening');
+  }
 });
 
 closeUserManualButton.addEventListener('click', closeUserManual);
