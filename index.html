@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111318">
+
+  <title>Prompt Lab Studio</title>
+
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+
+<body>
+  <header class="app-header">
+    <button
+  id="menu-toggle"
+  class="menu-toggle secondary-button"
+  type="button"
+  aria-controls="tool-menu"
+  aria-expanded="false"
+>
+  ☰ Menu
+</button>
+    <div class="brand">
+      <div class="brand-mark">P</div>
+
+      <div>
+        <h1>Prompt Lab Studio</h1>
+        <p>Prompt workspace</p>
+      </div>
+    </div>
+
+    <span class="status-indicator">
+      <span class="status-dot"></span>
+      Local workspace
+    </span>
+  </header>
+<nav id="tool-menu" class="tool-menu" aria-label="工具菜单" hidden>
+  <button type="button" data-tool="editor">Prompt Editor</button>
+  <button type="button" data-tool="cleaner">Prompt Cleaner</button>
+  <button type="button" data-tool="tagger">Prompt Tagger</button>
+  <button type="button" data-tool="categorizer">Tag Categorizer</button>
+  <button type="button" data-tool="diff">Prompt Diff</button>
+  <button type="button" data-tool="weights">Weight Manager</button>
+  <button type="button" data-tool="batch">Batch Processor</button>
+</nav>
+  <main id  ="workspace" class="workspace">
+    <section class="panel document-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">DOCUMENT</p>
+          <h2>Untitled prompt</h2>
+        </div>
+
+        <span class="panel-number">01</span>
+      </div>
+
+      <label for="document-title">Document title</label>
+
+      <input
+        id="document-title"
+        type="text"
+        placeholder="Enter a document title"
+        value="Untitled prompt"
+      >
+
+      <p
+        id="title-message"
+        class="field-message"
+        aria-live="polite"
+      ></p>
+
+      <div class="tag-search-panel">
+        <label for="tag-search-input">Danbooru 标签搜索</label>
+
+        <input
+          id="tag-search-input"
+          type="text"
+          placeholder="输入标签，例如 blue hair..."
+          autocomplete="off"
+        >
+
+        <div
+          id="tag-search-results"
+          class="tag-search-results"
+          aria-live="polite"
+        >
+          输入关键词以搜索标签。
+        </div>
+      </div>
+    </section>
+
+    <div class="editor-column">
+    <section class="panel editor-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">WORKSPACE</p>
+          <h2>Prompt editor</h2>
+        </div>
+
+        <span class="panel-number">02</span>
+      </div>
+
+      <div class="prompt-label-row">
+        <label for="prompt-source">Source text</label>
+
+        <div class="syntax-legend">
+          <span class="legend-item">
+            <span class="legend-dot legend-tag"></span>
+            普通标签
+          </span>
+
+          <span class="legend-item">
+            <span class="legend-dot legend-weight"></span>
+            权重表达式
+          </span>
+        </div>
+      </div>
+
+      <div class="prompt-editor">
+        <pre
+          id="prompt-highlight"
+          class="prompt-highlight"
+          aria-hidden="true"
+        ></pre>
+
+        <textarea
+          id="prompt-source"
+          spellcheck="false"
+          placeholder="Write your prompt here..."
+          aria-describedby="prompt-help"
+        ></textarea>
+      </div>
+
+      <p id="prompt-help" class="field-hint">
+        Your original text stays unchanged by validation.
+      </p>
+
+      <div class="editor-actions">
+        <button id="validate-button" type="button">
+          Validate prompt
+        </button>
+
+        <button
+          id="new-document-button"
+          type="button"
+          class="secondary-button"
+        >
+          New Document
+        </button>
+
+        <button
+          id="save-json-button"
+          type="button"
+          class="secondary-button"
+        >
+          Save JSON
+        </button>
+
+        <button
+          id="save-txt-button"
+          type="button"
+          class="secondary-button"
+        >
+          Export TXT
+        </button>
+
+        <button
+          id="open-document-button"
+          type="button"
+          class="secondary-button"
+        >
+          Open File
+        </button>
+
+        <input
+          id="open-file-input"
+          type="file"
+          accept=".json,.txt,application/json,text/plain"
+          hidden
+        >
+
+        <button
+          id="undo-button"
+          type="button"
+          class="secondary-button"
+        >
+          Undo
+        </button>
+
+        <button
+          id="redo-button"
+          type="button"
+          class="secondary-button"
+        >
+          Redo
+        </button>
+      </div>
+    </section>
+
+     <section class="panel validation-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">DIAGNOSTICS</p>
+          <h2>Validation results</h2>
+        </div>
+        <span class="panel-number">03</span>
+      </div>
+
+      <div id="validation-status" class="validation-status" aria-live="polite">
+        <span class="status-dot"></span>
+        Not validated yet
+      </div>
+
+      <ul id="validation-results" class="validation-results">
+        <li>Run validation to check for unmatched parentheses.</li>
+      </ul>
+    </section>
+    </div>
+  </main>
+<section id="tool-placeholder" class="panel tool-placeholder" hidden>
+<div id="tagger-tool-content" hidden>
+  <h2>图片打标</h2>
+  <p>选择图片后，图片会发送到 PixAI Tagger Demo 生成标签。</p>
+
+  <div class="tagger-layout">
+    <section class="tagger-upload-panel">
+      <div class="tagger-image-preview" tabindex="0">
+        <p id="tagger-image-placeholder">拖入、选择或粘贴图片后会在这里预览</p>
+        <img id="tagger-image-preview" alt="待打标图片预览" hidden>
+<button
+  id="remove-tagger-image-button"
+  class="remove-tagger-image-button"
+  type="button"
+  aria-label="移除图片"
+  title="移除图片"
+  hidden
+>
+  ×
+</button>
+      </div>
+      
+      <label for="tagger-image">选择图片</label>
+      <input id="tagger-image" type="file" accept="image/*">
+      <label class="tagger-optimize-option" for="tagger-optimize-upload">
+        <input id="tagger-optimize-upload" type="checkbox" checked>
+        <span>
+          <strong>智能优化上传</strong>
+          <small>最长边 1536px · WebP 质量 0.92</small>
+        </span>
+      </label>
+
+      <button id="run-tagger-button" type="button" disabled>
+        生成标签
+      </button>
+    </section>
+
+    <section class="tagger-results-panel">
+      <div id="tagger-stats" class="tagger-stats" aria-live="polite">
+        尚未生成标签
+      </div>
+
+      <p id="tagger-status" aria-live="polite">请选择一张图片。</p>
+      <button id="reset-tagger-thresholds-button" class="secondary-button" type="button">
+        恢复默认阈值
+      </button>
+      <section class="tagger-feature-filters" aria-labelledby="tagger-feature-filters-heading">
+        <div class="tagger-feature-filters-header">
+          <h3 id="tagger-feature-filters-heading">角色特征过滤</h3>
+          <span id="tagger-feature-filter-summary">全部放行</span>
+        </div>
+        <p>关闭开关会从预览、复制和覆盖 Prompt 的结果中排除该类标签；标签列表仍会显示。</p>
+        <div class="tagger-feature-filter-list">
+          <label class="tagger-feature-filter" title="拦截眼睛颜色和异色瞳标签">
+            <input type="checkbox" data-tagger-feature="eye-color" checked>
+            <span><strong>瞳色</strong><small>blue_eyes · red_eyes · heterochromia</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截头发颜色、双色、渐变与挑染标签">
+            <input type="checkbox" data-tagger-feature="hair-color" checked>
+            <span><strong>发色</strong><small>black_hair · blonde_hair · two-tone_hair</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截非颜色类发型、发长和造型标签">
+            <input type="checkbox" data-tagger-feature="hairstyle" checked>
+            <span><strong>发型·发长</strong><small>long_hair · twintails · ahoge</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截深肤色、棕肤和晒黑标签">
+            <input type="checkbox" data-tagger-feature="dark-skin" checked>
+            <span><strong>黑皮 / 深肤</strong><small>dark_skin · tan · dark-skinned_female</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截兽耳、尾巴与兽娘特征">
+            <input type="checkbox" data-tagger-feature="kemonomimi" checked>
+            <span><strong>兽耳 / 兽娘</strong><small>animal_ears · cat_ears · fox_tail</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截精灵与尖耳朵特征">
+            <input type="checkbox" data-tagger-feature="elf" checked>
+            <span><strong>精灵系</strong><small>elf · pointy_ears · dark_elf</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截天使、光环与羽翼特征">
+            <input type="checkbox" data-tagger-feature="angelic" checked>
+            <span><strong>天使系</strong><small>angel · halo · feathered_wings</small></span>
+          </label>
+          <label class="tagger-feature-filter" title="拦截恶魔、犄角、蝙蝠翅膀与魅魔特征">
+            <input type="checkbox" data-tagger-feature="demonic" checked>
+            <span><strong>恶魔系</strong><small>horns · demon_tail · succubus</small></span>
+          </label>
+        </div>
+      </section>
+      <section class="tagger-output-panel" aria-label="选中标签输出">
+        <div class="tagger-output-header">
+          <div>
+            <h3>选中标签输出</h3>
+            <p id="tagger-output-count" aria-live="polite">0 个可复制标签</p>
+          </div>
+          <div class="tagger-output-actions">
+            <label for="tagger-sort-mode">排序</label>
+            <select id="tagger-sort-mode">
+              <option value="confidence">置信度降序</option>
+              <option value="alphabetical">按类别 A-Z</option>
+              <option value="global-alphabetical">全局 A-Z</option>
+            </select>
+            <label class="tagger-format-option" for="tagger-keep-underscores">
+              <input id="tagger-keep-underscores" type="checkbox">
+              保留下划线
+            </label>
+            <label class="tagger-format-option" for="tagger-artist-prefix">
+              <input id="tagger-artist-prefix" type="checkbox">
+              Style 分类加 artist: 前缀
+            </label>
+            <button id="copy-all-tagger-tags-button" type="button" disabled>
+              一键复制全部
+            </button>
+          </div>
+        </div>
+        <pre id="tagger-output-preview">选择标签后将在这里预览。</pre>
+      </section>
+      <div id="tagger-results" aria-live="polite"></div>
+      <details id="tagger-score-browser" class="tagger-score-browser" hidden>
+        <summary>
+          原始置信度检索表
+          <span id="tagger-score-count">0 个标签</span>
+        </summary>
+        <label for="tagger-score-search">搜索标签</label>
+        <input id="tagger-score-search" type="search" placeholder="输入标签或类别">
+        <div class="tagger-score-table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">标签</th>
+                <th scope="col">类别</th>
+                <th scope="col">置信度</th>
+              </tr>
+            </thead>
+            <tbody id="tagger-score-rows"></tbody>
+          </table>
+        </div>
+        <p id="tagger-score-empty" hidden>没有匹配的标签。</p>
+      </details>
+
+      <button id="append-tagger-tags-button" type="button" disabled>
+        用选中标签覆盖 Prompt
+      </button>
+    </section>
+  </div>
+</div>
+
+<div id="cleaner-tool-content" hidden>
+  <h2 id="tool-placeholder-title">Prompt Cleaner</h2>
+  <p>整理 Prompt 标签，并管理需要屏蔽的词。</p>
+
+  <div class="cleaner-layout">
+    <section class="cleaner-main-panel">
+      <div class="cleaner-main-columns">
+        <section class="cleaner-editor-panel">
+          <label for="cleaner-source">Prompt</label>
+          <textarea id="cleaner-source" spellcheck="false"></textarea>
+
+          <button id="analyze-cleanup-button" type="button">
+            分析 Prompt
+          </button>
+
+          <div id="cleanup-preview" hidden aria-live="polite">
+            <h3>输出结果</h3>
+            <div class="cleanup-output-controls">
+              <div class="cleanup-view-toggle" role="group" aria-label="输出显示方式">
+                <button id="cleanup-marked-preview-button" type="button" aria-pressed="true">
+                  划线预览
+                </button>
+                <button id="cleanup-clean-output-button" type="button" aria-pressed="false">
+                  干净输出
+                </button>
+              </div>
+              <button id="copy-cleanup-result-button" type="button">
+                复制干净结果
+              </button>
+            </div>
+            <pre id="cleanup-result"></pre>
+            <p id="cleanup-copy-status" class="field-message" aria-live="polite"></p>
+            <button id="apply-cleanup-button" type="button">应用清理</button>
+            <button id="cancel-cleanup-button" type="button">取消</button>
+            <pre id="cleanup-original" hidden></pre>
+          </div>
+        </section>
+
+        <section class="cleaner-blocked-panel">
+          <h3>屏蔽词管理</h3>
+          <p>添加屏蔽词，再为每个词选择精确或模糊匹配。</p>
+
+          <p>点击右侧标签将其加入屏蔽列表，再选择精确或模糊匹配。</p><div id="cleanup-blocked-terms"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="cleaner-tags-panel">
+      <h3>Prompt 标签</h3>
+      <p>点击标签可选择屏蔽。红色表示精确屏蔽，黄色表示模糊屏蔽；输出结果中会划线预览，应用后移除。</p>
+      <div id="cleanup-tags" class="cleanup-tags"></div>
+    </section>
+  </div>
+</div>
+
+  <p id="tool-placeholder-message" hidden>此工具尚未实现。</p>
+</section>
+
+  <footer class="app-footer">
+    <span>Prompt Lab Studio</span>
+    <span>Zero-dependency prototype</span>
+  </footer>
+
+  <div
+    id="confirm-modal"
+    class="confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirm-modal-title"
+    aria-describedby="confirm-modal-message"
+    hidden
+  >
+    <div class="confirm-modal-backdrop"></div>
+
+    <section class="confirm-modal-card">
+      <div class="confirm-modal-icon" aria-hidden="true">!</div>
+
+      <h2 id="confirm-modal-title">Create New Document?</h2>
+
+      <p id="confirm-modal-message">
+        You have unsaved changes. Do you want to discard them and create a new document?
+      </p>
+
+      <div class="confirm-modal-actions">
+        <button
+          id="confirm-cancel-button"
+          type="button"
+          class="secondary-button"
+        >
+          Discard Changes
+        </button>
+
+        <button id="confirm-continue-button" type="button">
+          Create New
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
+
+</body>
+</html>
