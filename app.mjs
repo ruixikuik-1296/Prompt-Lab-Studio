@@ -930,14 +930,21 @@ copyAllTaggerTagsButton.addEventListener('click', async () => {
   }
 });
 
-appendTaggerTagsButton.addEventListener('click', () => {
-  const selectedTags = getSelectedVisibleTagCheckboxes()
-    .map((checkbox) => checkbox.value);
-
+function overwritePromptWithSelectedTaggerTags(selectedTags) {
   if (selectedTags.length === 0) return;
 
   promptSource.value = selectedTags.join(', ');
   promptSource.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+appendTaggerTagsButton.addEventListener('click', () => {
+  const selectedTags = getSelectedVisibleTagCheckboxes()
+    .map((checkbox) => checkbox.value);
+  if (selectedTags.length === 0) return;
+
+  pendingTaggerTags = selectedTags;
+  pendingDocumentAction = 'tagger-overwrite';
+  openConfirmModal();
 });
 
 let cleanupEditorSource = '';
@@ -1163,7 +1170,9 @@ cancelCleanupButton.addEventListener('click', () => {
 });
 let history = createHistory(promptSource.value);
 let isApplyingHistory = false;
-let pendingDocumentAction = null;   
+let pendingDocumentAction = null;
+let pendingTaggerTags = null;
+let confirmReturnFocus = null;
 let lastExportedDocument = {
   title: titleInput.value,
   source: promptSource.value,
@@ -1525,11 +1534,18 @@ function createNewDocument() {newDocumentButton
 }
 
 function openConfirmModal() {
+  confirmReturnFocus = document.activeElement;
+
   if (pendingDocumentAction === 'open') {
     confirmModalTitle.textContent = 'Open Another Document?';
     confirmModalMessage.textContent =
       'You have unsaved changes. Do you want to discard them and open another document?';
     confirmContinueButton.textContent = 'Open File';
+  } else if (pendingDocumentAction === 'tagger-overwrite') {
+    confirmModalTitle.textContent = '覆盖当前 Prompt？';
+    confirmModalMessage.textContent =
+      '这会用当前选中的标签替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。';
+    confirmContinueButton.textContent = '覆盖 Prompt';
   } else {
     confirmModalTitle.textContent = 'Create New Document?';
     confirmModalMessage.textContent =
@@ -1543,7 +1559,8 @@ function openConfirmModal() {
 
 function closeConfirmModal() {
   confirmModal.hidden = true;
-  newDocumentButton.focus();
+  confirmReturnFocus?.focus();
+  confirmReturnFocus = null;
 }
 
 newDocumentButton.addEventListener('click', () => {
@@ -1558,19 +1575,24 @@ newDocumentButton.addEventListener('click', () => {
 
 confirmCancelButton.addEventListener('click', () => {
   pendingDocumentAction = null;
+  pendingTaggerTags = null;
   closeConfirmModal();
 });
 
 confirmContinueButton.addEventListener('click', () => {
   const action = pendingDocumentAction;
+  const selectedTags = pendingTaggerTags;
 
   pendingDocumentAction = null;
+  pendingTaggerTags = null;
   closeConfirmModal();
 
   if (action === 'new') {
     createNewDocument();
   } else if (action === 'open') {
     openFileInput.click();
+  } else if (action === 'tagger-overwrite') {
+    overwritePromptWithSelectedTaggerTags(selectedTags ?? []);
   }
 });
 
