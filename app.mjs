@@ -1153,6 +1153,12 @@ copyCleanupResultButton.addEventListener('click', async () => {
   }
 });
 
+function applyCleanupToPrompt(cleanedPrompt) {
+  promptSource.value = cleanedPrompt;
+  promptSource.dispatchEvent(new Event('input', { bubbles: true }));
+  cleanupPreview.hidden = true;
+}
+
 applyCleanupButton.addEventListener('click', () => {
   if (promptSource.value !== cleanupEditorSource) {
     showFileMessage('Prompt changed. Check duplicates again before applying.', true);
@@ -1160,9 +1166,9 @@ applyCleanupButton.addEventListener('click', () => {
     return;
   }
 
-  promptSource.value = cleanupResult;
-  promptSource.dispatchEvent(new Event('input', { bubbles: true }));
-  cleanupPreview.hidden = true;
+  pendingCleanupPrompt = cleanupResult;
+  pendingDocumentAction = 'cleaner-overwrite';
+  openConfirmModal();
 });
 
 cancelCleanupButton.addEventListener('click', () => {
@@ -1172,6 +1178,7 @@ let history = createHistory(promptSource.value);
 let isApplyingHistory = false;
 let pendingDocumentAction = null;
 let pendingTaggerTags = null;
+let pendingCleanupPrompt = null;
 let confirmReturnFocus = null;
 let lastExportedDocument = {
   title: titleInput.value,
@@ -1546,6 +1553,11 @@ function openConfirmModal() {
     confirmModalMessage.textContent =
       '这会用当前选中的标签替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。';
     confirmContinueButton.textContent = '覆盖 Prompt';
+  } else if (pendingDocumentAction === 'cleaner-overwrite') {
+    confirmModalTitle.textContent = '替换当前 Prompt？';
+    confirmModalMessage.textContent =
+      '这会用 Cleaner 的干净结果替换 Prompt Editor 中的全部内容。此操作可以通过撤销恢复。';
+    confirmContinueButton.textContent = '替换 Prompt';
   } else {
     confirmModalTitle.textContent = 'Create New Document?';
     confirmModalMessage.textContent =
@@ -1576,15 +1588,18 @@ newDocumentButton.addEventListener('click', () => {
 confirmCancelButton.addEventListener('click', () => {
   pendingDocumentAction = null;
   pendingTaggerTags = null;
+  pendingCleanupPrompt = null;
   closeConfirmModal();
 });
 
 confirmContinueButton.addEventListener('click', () => {
   const action = pendingDocumentAction;
   const selectedTags = pendingTaggerTags;
+  const cleanedPrompt = pendingCleanupPrompt;
 
   pendingDocumentAction = null;
   pendingTaggerTags = null;
+  pendingCleanupPrompt = null;
   closeConfirmModal();
 
   if (action === 'new') {
@@ -1593,6 +1608,8 @@ confirmContinueButton.addEventListener('click', () => {
     openFileInput.click();
   } else if (action === 'tagger-overwrite') {
     overwritePromptWithSelectedTaggerTags(selectedTags ?? []);
+  } else if (action === 'cleaner-overwrite') {
+    applyCleanupToPrompt(cleanedPrompt ?? '');
   }
 });
 
